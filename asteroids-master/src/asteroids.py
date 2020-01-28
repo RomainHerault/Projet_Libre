@@ -142,7 +142,7 @@ class Asteroids():
             self.stage.screen.fill((10, 10, 10))
             self.stage.moveSprites()
             self.stage.drawSprites()
-            self.doSaucerLogic()
+            #self.doSaucerLogic()
             self.displayScore()
             if self.showingFPS:
                 self.displayFps()  # for debug
