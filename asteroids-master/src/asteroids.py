@@ -156,7 +156,11 @@ class Asteroids():
             else:
                 self.displayText()
 
-            self.carac.display_rock_position(self.rockList)
+            # self.carac.display_rock_position(self.rockList)
+            # self.carac.display_score(self.score)
+            # self.carac.display_number_life(self.lives)
+            # self.carac.display_ship(self.ship)
+            self.carac.get_data(self.ship,self.rockList,self.lives,self.score)
 
             # Double buffer draw
             pygame.display.flip()
