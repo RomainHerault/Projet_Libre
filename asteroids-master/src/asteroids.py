@@ -39,10 +39,9 @@ from stage import *
 from badies import *
 from shooter import *
 from soundManager import *
-
+from neural_network import carac_extract
 
 class Asteroids():
-    carac = extract_carac()
 
     explodingTtl = 180
 
@@ -59,6 +58,8 @@ class Asteroids():
         self.score = 0
         self.ship = None
         self.lives = 0
+
+        self.carac = carac_extract.Extract()
 
     def initialiseGame(self):
         self.gameState = 'playing'
@@ -141,7 +142,7 @@ class Asteroids():
             self.stage.screen.fill((10, 10, 10))
             self.stage.moveSprites()
             self.stage.drawSprites()
-            #self.doSaucerLogic()
+            self.doSaucerLogic()
             self.displayScore()
             if self.showingFPS:
                 self.displayFps()  # for debug
@@ -154,6 +155,8 @@ class Asteroids():
                 self.exploding()
             else:
                 self.displayText()
+
+            self.carac.display_rock_position(self.rockList)
 
             # Double buffer draw
             pygame.display.flip()
