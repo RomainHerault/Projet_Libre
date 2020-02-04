@@ -160,8 +160,7 @@ class Asteroids():
             # self.carac.display_score(self.score)
             # self.carac.display_number_life(self.lives)
             # self.carac.display_ship(self.ship)
-
-            # self.carac.get_data(self.ship, self.rockList, self.lives,self.score)
+            # self.carac.get_data(self.ship,self.rockList,self.lives,self.score)
 
             # Double buffer draw
             pygame.display.flip()
@@ -250,16 +249,24 @@ class Asteroids():
 
     # Should move the ship controls into the ship class
     def input(self, events):
+        input_list = [0, 0, 0, 0, 0]
         self.frameAdvance = False
         for event in events:
             if event.type == QUIT:
                 sys.exit(0)
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
+                    self.carac.save_data()
+                    print("save data")
                     sys.exit(0)
+                if event.key == K_s:
+                    self.carac.save_data()
+                    print("save data")
                 if self.gameState == 'playing':
                     if event.key == K_SPACE:
                         self.ship.fireBullet()
+                        self.carac.get_data(self.ship, self.rockList, self.lives, self.score, [0, 0, 0, 1])
+                        print('Fire bullet')
                     elif event.key == K_b:
                         self.ship.fireBullet()
                     elif event.key == K_h:
@@ -295,14 +302,22 @@ class Asteroids():
 
         if key[K_LEFT] or key[K_z]:
             self.ship.rotateLeft()
+            self.carac.get_data(self.ship, self.rockList, self.lives, self.score, [1, 0, 0, 0])
+            print('left')
         elif key[K_RIGHT] or key[K_x]:
             self.ship.rotateRight()
+            self.carac.get_data(self.ship, self.rockList, self.lives, self.score, [0, 1, 0, 0])
+            print('right')
 
         if key[K_UP] or key[K_n]:
             self.ship.increaseThrust()
             self.ship.thrustJet.accelerating = True
+            self.carac.get_data(self.ship, self.rockList, self.lives, self.score, [0, 0, 1, 0])
+            print('up')
         else:
             self.ship.thrustJet.accelerating = False
+            print('down')
+
 
     # Check for ship hitting the rocks etc.
 
