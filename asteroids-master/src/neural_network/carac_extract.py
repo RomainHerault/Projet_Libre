@@ -1,4 +1,6 @@
 import numpy as np
+
+
 class Extract:
     def __init__(self):
         self.dataset = []
@@ -7,12 +9,12 @@ class Extract:
         print('number of rocks', len(rock_list))
         for rock in rock_list:
             print('position', rock.position.x, rock.position.y)
-            print('bouding box', rock.boundingRect)
+            print('bounding box', rock.boundingRect)
 
     def display_ship(self, ship):
         if ship is not None:
             print('ship position ', ship.position.x, ship.position.y)
-            print('ship bouding box ', ship.boundingRect)
+            print('ship bounding box ', ship.boundingRect)
 
     def display_number_life(self, number_life):
         print('number of life ', number_life)
@@ -22,12 +24,14 @@ class Extract:
 
     def get_data(self, ship, rock_list, number_life, score):
         frame_data = []
-        if ship is not None :
-            ship_data = [ship.position.x, ship.position.y, ship.boundingRect.top, ship.boundingRect.bottom,
+        if ship is not None:
+            ship_data = [ship.position.x, ship.position.y,
+                         ship.boundingRect.top, ship.boundingRect.bottom,
                          ship.boundingRect.left, ship.boundingRect.right]
             frame_data.append(ship_data)
             for rock in rock_list:
-                rock_data = [rock.position.x, rock.position.y, rock.boundingRect.top, rock.boundingRect.bottom,
+                rock_data = [rock.position.x, rock.position.y,
+                             rock.boundingRect.top, rock.boundingRect.bottom,
                              rock.boundingRect.left, rock.boundingRect.right]
                 frame_data.append(rock_data)
 
@@ -36,5 +40,4 @@ class Extract:
 
             self.dataset.append(frame_data)
             array = np.array(self.dataset)
-
             #print(array.shape)
