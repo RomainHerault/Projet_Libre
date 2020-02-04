@@ -48,13 +48,12 @@ class Extract:
         ground_truth = np.array(self.ground_truth)
         # datetime object containing current date and time
         now = datetime.now()
-
         print("now =", now)
-        # dd/mm/YY H:M:S
+
         filename_string = "SavedData/dataset_"+now.strftime("%d-%m-%Y_%H-%M-%S")
 
-        final = (dataset_array,ground_truth)
-        #dataset-"+dt_string+".pickle
+        final = [dataset_array,ground_truth]
+
         pickle_out = open(filename_string, "wb")
         pickle.dump(final, pickle_out)
         pickle_out.close()
@@ -62,8 +61,9 @@ class Extract:
         #np.save('dataset.npy', dataset_array)  # save
         #np.save('ground_truth.npy', ground_truth)  # save
 
-    def load_data(self, dataset_path, groundtruth_path):
-        self.dataset = np.load(dataset_path)  # load
-        self.ground_truth = np.load(groundtruth_path)  # load
+    def load_data(self, dataset_path):
+        infile = open(dataset_path, 'rb')
+        final = pickle.load(infile)
+        infile.close()
 
-        return self.dataset, self.ground_truth
+        return final[0], final[1]
