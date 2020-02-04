@@ -2,45 +2,43 @@
 import keras
 from keras.datasets import mnist
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Flatten, Dropout
+from keras.optimizers import Adam
 from keras.utils import to_categorical
+from keras.models import load_model
+import numpy as np
+from datetime import datetime
+from carac_extract import load_data
 
 # Configuration options
-feature_vector_length = 784
-num_classes = 60000
+num_classes = 4
 
 # Load the data
-(X_train, Y_train), (X_test, Y_test) = mnist.load_data()
-
-# Reshape the data - MLPs do not understand such things as '2D'.
-# Reshape to 28 x 28 pixels = 784 features
-X_train = X_train.reshape(X_train.shape[0], feature_vector_length)
-X_test = X_test.reshape(X_test.shape[0], feature_vector_length)
-
-# Convert into greyscale
-X_train = X_train.astype('float32')
-X_test = X_test.astype('float32')
-X_train /= 255
-X_test /= 255
-
-# Convert target classes to categorical ones
-Y_train = to_categorical(Y_train, num_classes)
-Y_test = to_categorical(Y_test, num_classes)
-
-# Set the input shape
-input_shape = (feature_vector_length,)
-print(f'Feature shape: {input_shape}')
+(X_train, Y_train) = load_data(
+    r'C:\Users\21506969t\PycharmProjects\Projet_Libre\asteroids-master\src\SavedData\dataset_04-02-2020_15-06-02')
+print(X_train.shape)
+print(Y_train.shape)
 
 # Create the model
 model = Sequential()
-model.add(Dense(350, input_shape=input_shape, activation='relu'))
-model.add(Dense(50, activation='relu'))
+model.add(Dense(100, input_shape=(50, 6), activation='relu'))
+model.add(Dense(100, activation='relu'))
+model.add(Dense(100, activation='relu'))
+model.add(Dense(100, activation='relu'))
+model.add(Dense(100, activation='relu'))
+model.add(Dense(100, activation='relu'))
+model.add(Flatten())
 model.add(Dense(num_classes, activation='softmax'))
 
 # Configure the model and start training
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-model.fit(X_train, Y_train, epochs=10, batch_size=250, verbose=1, validation_split=0.2)
+print(model.optimizer.get_config())
+history = model.fit(X_train, Y_train, epochs=10, batch_size=250, verbose=1, shuffle=True, validation_split=0.1)
 
-# Test the model after training
-test_results = model.evaluate(X_test, Y_test, verbose=1)
-print(f'Test results - Loss: {test_results[0]} - Accuracy: {test_results[1]}%')
+model.save('model ' + datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + '.h5')  # creates a HDF5 file
+
+# del model  # deletes the existing model
+
+# returns a compiled model
+# identical to the previous one
+# model = load_model('model_70_acc.h5')
