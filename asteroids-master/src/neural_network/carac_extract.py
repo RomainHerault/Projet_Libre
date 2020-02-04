@@ -41,6 +41,8 @@ class Extract:
                                  rock.boundingRect.top, rock.boundingRect.bottom,
                                  rock.boundingRect.left, rock.boundingRect.right]
                     frame_data[i+1] = rock_data
+                else :
+                    print("Y'A TROP D'ASTEROIIIIIDS !!! AU SECOUUUURS !!!!")
             # for rock in rock_list:
             #     rock_data = [rock.position.x, rock.position.y,
             #                  rock.boundingRect.top, rock.boundingRect.bottom,
@@ -51,7 +53,7 @@ class Extract:
             frame_data[-1] = other_data
 
             self.dataset.append(frame_data)
-            self.ground_truth.append(input)
+            self.ground_truth.append(np.array(input))
 
     def save_data(self):
         dataset_array = np.array(self.dataset)

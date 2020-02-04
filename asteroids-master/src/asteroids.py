@@ -266,7 +266,7 @@ class Asteroids():
                     if event.key == K_SPACE:
                         self.ship.fireBullet()
                         self.carac.get_data(self.ship, self.rockList, self.lives, self.score, [0, 0, 0, 1])
-                        print('Fire bullet')
+                        #print('Fire bullet')
                     elif event.key == K_b:
                         self.ship.fireBullet()
                     elif event.key == K_h:
