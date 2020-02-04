@@ -1,7 +1,10 @@
 import numpy as np
+
+
 class Extract:
     def __init__(self):
         self.dataset = []
+        self.ground_truth = []
 
     def display_rock_position(self, rock_list):
         print('number of rocks', len(rock_list))
@@ -20,9 +23,10 @@ class Extract:
     def display_score(self, score):
         print('score ', score)
 
-    def get_data(self, ship, rock_list, number_life, score):
+    def get_data(self, ship, rock_list, number_life, score, input):
         frame_data = []
-        if ship is not None :
+
+        if ship is not None:
             ship_data = [ship.position.x, ship.position.y, ship.boundingRect.top, ship.boundingRect.bottom,
                          ship.boundingRect.left, ship.boundingRect.right]
             frame_data.append(ship_data)
@@ -35,6 +39,17 @@ class Extract:
             frame_data.append(other_data)
 
             self.dataset.append(frame_data)
-            array = np.array(self.dataset)
+            self.ground_truth.append(input)
 
-            #print(array.shape)
+    def save_data(self):
+        dataset_array = np.array(self.dataset)
+        ground_truth = np.array(self.ground_truth)
+
+        np.save('dataset.npy', dataset_array)  # save
+        np.save('ground_truth.npy', ground_truth)  # save
+
+    def load_data(self, dataset_path, groundtruth_path):
+        self.dataset = np.load(dataset_path)  # load
+        self.ground_truth = np.load(groundtruth_path)  # load
+
+        return self.dataset, self.ground_truth

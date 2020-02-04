@@ -41,8 +41,8 @@ from shooter import *
 from soundManager import *
 from neural_network import carac_extract
 
-class Asteroids():
 
+class Asteroids():
     explodingTtl = 180
 
     def __init__(self):
@@ -97,7 +97,7 @@ class Asteroids():
         ship = Ship(self.stage)
         self.stage.addSprite(ship)
         ship.position.x = self.stage.width - \
-            (lifeNumber * ship.boundingRect.width) - 10
+                          (lifeNumber * ship.boundingRect.width) - 10
         ship.position.y = 0 + ship.boundingRect.height
         self.livesList.append(ship)
 
@@ -142,7 +142,7 @@ class Asteroids():
             self.stage.screen.fill((10, 10, 10))
             self.stage.moveSprites()
             self.stage.drawSprites()
-            #self.doSaucerLogic()
+            # self.doSaucerLogic()
             self.displayScore()
             if self.showingFPS:
                 self.displayFps()  # for debug
@@ -160,7 +160,7 @@ class Asteroids():
             # self.carac.display_score(self.score)
             # self.carac.display_number_life(self.lives)
             # self.carac.display_ship(self.ship)
-            self.carac.get_data(self.ship,self.rockList,self.lives,self.score)
+            # self.carac.get_data(self.ship,self.rockList,self.lives,self.score)
 
             # Double buffer draw
             pygame.display.flip()
@@ -214,21 +214,21 @@ class Asteroids():
         font3 = pygame.font.Font('../res/Hyperspace.otf', 30)
 
         titleText = font1.render('Asteroids', True, (180, 180, 180))
-        titleTextRect = titleText.get_rect(centerx=self.stage.width/2)
-        titleTextRect.y = self.stage.height/2 - titleTextRect.height*2
+        titleTextRect = titleText.get_rect(centerx=self.stage.width / 2)
+        titleTextRect.y = self.stage.height / 2 - titleTextRect.height * 2
         self.stage.screen.blit(titleText, titleTextRect)
 
         keysText = font2.render(
             '(C) 1979 Atari INC.', True, (255, 255, 255))
-        keysTextRect = keysText.get_rect(centerx=self.stage.width/2)
+        keysTextRect = keysText.get_rect(centerx=self.stage.width / 2)
         keysTextRect.y = self.stage.height - keysTextRect.height - 20
         self.stage.screen.blit(keysText, keysTextRect)
 
         instructionText = font3.render(
             'Press start to Play', True, (200, 200, 200))
         instructionTextRect = instructionText.get_rect(
-            centerx=self.stage.width/2)
-        instructionTextRect.y = self.stage.height/2 - instructionTextRect.height
+            centerx=self.stage.width / 2)
+        instructionTextRect.y = self.stage.height / 2 - instructionTextRect.height
         self.stage.screen.blit(instructionText, instructionTextRect)
 
     def displayScore(self):
@@ -243,22 +243,30 @@ class Asteroids():
             font1 = pygame.font.Font('../res/Hyperspace.otf', 30)
             pausedText = font1.render("Paused", True, (255, 255, 255))
             textRect = pausedText.get_rect(
-                centerx=self.stage.width/2, centery=self.stage.height/2)
+                centerx=self.stage.width / 2, centery=self.stage.height / 2)
             self.stage.screen.blit(pausedText, textRect)
             pygame.display.update()
 
     # Should move the ship controls into the ship class
     def input(self, events):
+        input_list = [0, 0, 0, 0, 0]
         self.frameAdvance = False
         for event in events:
             if event.type == QUIT:
                 sys.exit(0)
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
+                    self.carac.save_data()
+                    print("save data")
                     sys.exit(0)
+                if event.key == K_s:
+                    self.carac.save_data()
+                    print("save data")
                 if self.gameState == 'playing':
                     if event.key == K_SPACE:
                         self.ship.fireBullet()
+                        self.carac.get_data(self.ship, self.rockList, self.lives, self.score, [0, 0, 0, 1])
+                        print('Fire bullet')
                     elif event.key == K_b:
                         self.ship.fireBullet()
                     elif event.key == K_h:
@@ -284,7 +292,7 @@ class Asteroids():
                     pygame.display.toggle_fullscreen()
 
                 # if event.key == K_k:
-                    # self.killShip()
+                # self.killShip()
             elif event.type == KEYUP:
                 if event.key == K_o:
                     self.frameAdvance = True
@@ -294,14 +302,22 @@ class Asteroids():
 
         if key[K_LEFT] or key[K_z]:
             self.ship.rotateLeft()
+            self.carac.get_data(self.ship, self.rockList, self.lives, self.score, [1, 0, 0, 0])
+            print('left')
         elif key[K_RIGHT] or key[K_x]:
             self.ship.rotateRight()
+            self.carac.get_data(self.ship, self.rockList, self.lives, self.score, [0, 1, 0, 0])
+            print('right')
 
         if key[K_UP] or key[K_n]:
             self.ship.increaseThrust()
             self.ship.thrustJet.accelerating = True
+            self.carac.get_data(self.ship, self.rockList, self.lives, self.score, [0, 0, 1, 0])
+            print('up')
         else:
             self.ship.thrustJet.accelerating = False
+            print('down')
+
 
     # Check for ship hitting the rocks etc.
 
@@ -380,7 +396,7 @@ class Asteroids():
             self.killShip()
 
             # comment in to pause on collision
-            #self.paused = True
+            # self.paused = True
 
     def killShip(self):
         stopSound("thrust")
@@ -411,10 +427,10 @@ class Asteroids():
 
     def displayFps(self):
         font2 = pygame.font.Font('../res/Hyperspace.otf', 15)
-        fpsStr = str(self.fps)+(' FPS')
+        fpsStr = str(self.fps) + (' FPS')
         scoreText = font2.render(fpsStr, True, (255, 255, 255))
         scoreTextRect = scoreText.get_rect(
-            centerx=(self.stage.width/2), centery=15)
+            centerx=(self.stage.width / 2), centery=15)
         self.stage.screen.blit(scoreText, scoreTextRect)
 
     def checkScore(self):
