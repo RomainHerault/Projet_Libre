@@ -303,20 +303,19 @@ class Asteroids():
         if key[K_LEFT] or key[K_z]:
             self.ship.rotateLeft()
             self.carac.get_data(self.ship, self.rockList, self.lives, self.score, [1, 0, 0, 0])
-            print('left')
+            #print('left')
         elif key[K_RIGHT] or key[K_x]:
             self.ship.rotateRight()
             self.carac.get_data(self.ship, self.rockList, self.lives, self.score, [0, 1, 0, 0])
-            print('right')
+            #print('right')
 
         if key[K_UP] or key[K_n]:
             self.ship.increaseThrust()
             self.ship.thrustJet.accelerating = True
             self.carac.get_data(self.ship, self.rockList, self.lives, self.score, [0, 0, 1, 0])
-            print('up')
+            #print('up')
         else:
             self.ship.thrustJet.accelerating = False
-            print('down')
 
 
     # Check for ship hitting the rocks etc.

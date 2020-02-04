@@ -1,4 +1,6 @@
 import numpy as np
+import pickle
+from datetime import datetime
 
 
 class Extract:
@@ -44,9 +46,21 @@ class Extract:
     def save_data(self):
         dataset_array = np.array(self.dataset)
         ground_truth = np.array(self.ground_truth)
+        # datetime object containing current date and time
+        now = datetime.now()
 
-        np.save('dataset.npy', dataset_array)  # save
-        np.save('ground_truth.npy', ground_truth)  # save
+        print("now =", now)
+        # dd/mm/YY H:M:S
+        filename_string = "SavedData/dataset_"+now.strftime("%d-%m-%Y_%H-%M-%S")
+
+        final = (dataset_array,ground_truth)
+        #dataset-"+dt_string+".pickle
+        pickle_out = open(filename_string, "wb")
+        pickle.dump(final, pickle_out)
+        pickle_out.close()
+
+        #np.save('dataset.npy', dataset_array)  # save
+        #np.save('ground_truth.npy', ground_truth)  # save
 
     def load_data(self, dataset_path, groundtruth_path):
         self.dataset = np.load(dataset_path)  # load
