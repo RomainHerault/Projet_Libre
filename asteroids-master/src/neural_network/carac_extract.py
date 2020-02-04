@@ -74,9 +74,10 @@ class Extract:
         # np.save('dataset.npy', dataset_array)  # save
         # np.save('ground_truth.npy', ground_truth)  # save
 
-    def load_data(self, dataset_path):
-        infile = open(dataset_path, 'rb')
-        final = pickle.load(infile)
-        infile.close()
 
-        return final[0], final[1]
+def load_data(dataset_path):
+    infile = open(dataset_path, 'rb')
+    final = pickle.load(infile)
+    infile.close()
+
+    return final[0], final[1]
