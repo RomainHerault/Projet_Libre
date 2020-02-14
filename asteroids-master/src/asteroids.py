@@ -40,6 +40,7 @@ from badies import *
 from shooter import *
 from soundManager import *
 from neural_network import carac_extract
+from neural_network.perceptron import Perceptron
 from pynput.keyboard import Key, Controller
 
 
@@ -118,12 +119,12 @@ class Asteroids():
         """
         keyboard = Controller()
         if input[0] == 1:
-            #self.pressKey(pygame.locals.K_LEFT)
-            #print(type(key[K_LEFT]))
+            # self.pressKey(pygame.locals.K_LEFT)
+            # print(type(key[K_LEFT]))
             keyboard.press(Key.left)
             print("gauche")
         else:
-            #self.releaseKey(pygame.locals.K_LEFT)
+            # self.releaseKey(pygame.locals.K_LEFT)
             # key[K_LEFT] = 0
             keyboard.release(Key.left)
         if input[1] == 1:
@@ -160,8 +161,15 @@ class Asteroids():
 
     def playGame(self):
 
-        _, inputs = carac_extract.load_data(
-            "D:/Romain/Documents/Projet Libre/asteroids-master/src/SavedData/dataset_04-02-2020_15-06-02")
+       # _, inputs = carac_extract.load_data(
+       #     "D:/Romain/Documents/Projet Libre/asteroids-master/src/SavedData/dataset_04-02-2020_15-06-02")
+
+        debug = False
+        perceptron = Perceptron()
+        perceptron.model()
+        perceptron.load_model(
+            r'P:\Temp\Ecole\Projet_Libre\asteroids-master\src\neural_network\model 04-02-2020_19-51-12_81_acc_29_val.h5')
+        perceptron.load_dataset(debug=debug)
 
         clock = pygame.time.Clock()
 
@@ -185,7 +193,11 @@ class Asteroids():
 
             self.secondsCount += 1
 
-            self.pressInput(inputs[i])
+            frame_data = self.carac.get_dataframe(self.ship, self.rockList, self.lives, self.score)
+            if frame_data is not None and self.gameState == 'playing':
+                next_input = perceptron.predict(framedata=frame_data, debug=debug)
+                self.pressInput(next_input)
+
             i += 1
 
             self.input(pygame.event.get())

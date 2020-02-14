@@ -8,7 +8,7 @@ from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.models import load_model
 import numpy as np
 from datetime import datetime
-from carac_extract import load_data
+from .carac_extract import load_data
 import numpy as np
 
 
@@ -20,7 +20,7 @@ class Perceptron():
     def load_dataset(self, debug=False):
         # Load the data
         (self.X_train, self.Y_train) = load_data(
-            r'C:\Users\nath\PycharmProjects\Projet_Libre\asteroids-master\src\SavedData\dataset_04-02-2020_15-06-02')
+            r'P:\Temp\Ecole\Projet_Libre\asteroids-master\src\SavedData\dataset_04-02-2020_15-06-02')
 
         if debug:
             print(self.X_train.shape)
