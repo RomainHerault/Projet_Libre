@@ -93,6 +93,7 @@ class Extract:
 
         filename_string = "SavedData/dataset_" + now.strftime(
             "%d-%m-%Y_%H-%M-%S")
+        print(self.ground_truth)
 
         final = [dataset_array, ground_truth]
 
