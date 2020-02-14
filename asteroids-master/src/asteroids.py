@@ -40,6 +40,8 @@ from badies import *
 from shooter import *
 from soundManager import *
 from neural_network import carac_extract
+from neural_network.perceptron import Perceptron
+from pynput.keyboard import Key, Controller
 
 
 class Asteroids():
@@ -58,6 +60,9 @@ class Asteroids():
         self.score = 0
         self.ship = None
         self.lives = 0
+        self.gamemode = 'normal'
+
+        self.current_inputs = [0, 0, 0, 0]
 
         self.carac = carac_extract.Extract()
 
@@ -110,9 +115,71 @@ class Asteroids():
             self.stage.addSprite(newRock)
             self.rockList.append(newRock)
 
+    def pressInput(self, input):
+        """
+        Press the imputs in parameters
+        input : array of the 4 keys (ex : [0 1 0 1] means right + shoot)
+        """
+        keyboard = Controller()
+        if input[0] == 1:
+            # self.pressKey(pygame.locals.K_LEFT)
+            # print(type(key[K_LEFT]))
+            keyboard.press(Key.left)
+            #print("gauche")
+        else:
+            # self.releaseKey(pygame.locals.K_LEFT)
+            # key[K_LEFT] = 0
+            keyboard.release(Key.left)
+        if input[1] == 1:
+            keyboard.press(Key.right)
+            #print("droite")
+        else:
+            keyboard.release(Key.right)
+        # self.pressKey(pygame.locals.K_RIGHT)
+        if input[2] == 1:
+            keyboard.press(Key.up)
+            #print("haut")
+        else:
+            keyboard.release(Key.up)
+        # self.pressKey(pygame.locals.K_UP)
+        if input[3] == 1:
+            keyboard.press(Key.space)
+            #print("tir")
+        else:
+            keyboard.release(Key.space)
+
+    # self.pressKey(pygame.locals.K_SPACE)
+    #
+    # def releaseKey(self, pygame_code):
+    #     newevent = pygame.event.Event(pygame.locals.KEYUP,
+    #                                   key=pygame_code,
+    #                                   mod=pygame.locals.KMOD_NONE)  # create the event
+    #     pygame.event.post(newevent)  # add the event to the queue
+    #
+    # def pressKey(self, pygame_code):
+    #     newevent = pygame.event.Event(pygame.locals.KEYDOWN,
+    #                                   key=pygame_code,
+    #                                   mod=pygame.locals.KMOD_NONE)  # create the event
+    #     pygame.event.post(newevent)  # add the event to the queue
+
     def playGame(self):
 
+        # _, inputs = carac_extract.load_data(
+        #     "D:/Romain/Documents/Projet Libre/asteroids-master/src/SavedData/dataset_04-02-2020_15-06-02")
+
+        self.gamemode = 'automatic'  # or normal
+        #self.gamemode = 'normal'
+
+        if self.gamemode == 'automatic':
+            debug = False
+            perceptron = Perceptron()
+            perceptron.model()
+            perceptron.load_model("./neural_network/model 14-02-2020_17-05-32_67_acc_32_val.h5")
+            perceptron.load_dataset(debug=debug)
+
         clock = pygame.time.Clock()
+
+        i = 0
 
         frameCount = 0.0
         timePassed = 0.0
@@ -131,6 +198,14 @@ class Asteroids():
                 frameCount = 0
 
             self.secondsCount += 1
+            if self.gamemode == 'automatic':
+                frame_data = self.carac.get_dataframe(self.ship, self.rockList, self.lives, self.score)
+                if frame_data is not None and self.gameState == 'playing':
+                    next_input = perceptron.predict(framedata=frame_data, debug=debug)
+                    print(next_input)
+                    self.pressInput(next_input)
+
+            i += 1
 
             self.input(pygame.event.get())
 
@@ -151,6 +226,10 @@ class Asteroids():
             # Process keys
             if self.gameState == 'playing':
                 self.playing()
+                if self.gamemode == 'normal':
+                    self.carac.get_data(self.ship, self.rockList,
+                                        self.lives, self.score,
+                                        self.current_inputs)
             elif self.gameState == 'exploding':
                 self.exploding()
             else:
@@ -249,28 +328,33 @@ class Asteroids():
 
     # Should move the ship controls into the ship class
     def input(self, events):
-        input_list = [0, 0, 0, 0, 0]
         self.frameAdvance = False
         for event in events:
             if event.type == QUIT:
                 sys.exit(0)
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
-                    self.carac.save_data()
-                    print("save data")
+                    if self.gamemode == 'normal':
+                        self.carac.save_data()
+                        print("save data")
                     sys.exit(0)
                 if event.key == K_s:
-                    self.carac.save_data()
+                    if self.gamemode == 'normal':
+                        self.carac.save_data()
                     print("save data")
                 if self.gameState == 'playing':
                     if event.key == K_SPACE:
                         self.ship.fireBullet()
-                        self.carac.get_data(self.ship, self.rockList, self.lives, self.score, [0, 0, 0, 1])
-                        print('Fire bullet')
+                        self.current_inputs[3] = 1
+                        # print('Fire bullet')
                     elif event.key == K_b:
                         self.ship.fireBullet()
+                        self.current_inputs[3] = 1
                     elif event.key == K_h:
                         self.ship.enterHyperSpace()
+                        self.current_inputs[3] = 0
+                    else:
+                        self.current_inputs[3] = 0
                 elif self.gameState == 'attract_mode':
                     # Start a new game
                     if event.key == K_RETURN:
@@ -302,21 +386,23 @@ class Asteroids():
 
         if key[K_LEFT] or key[K_z]:
             self.ship.rotateLeft()
-            self.carac.get_data(self.ship, self.rockList, self.lives, self.score, [1, 0, 0, 0])
-            #print('left')
+            self.current_inputs[0] = 1
+            self.current_inputs[1] = 0
+            # print('left')
         elif key[K_RIGHT] or key[K_x]:
             self.ship.rotateRight()
-            self.carac.get_data(self.ship, self.rockList, self.lives, self.score, [0, 1, 0, 0])
-            #print('right')
+            self.current_inputs[0] = 0
+            self.current_inputs[1] = 1
+            # print('right')
 
         if key[K_UP] or key[K_n]:
             self.ship.increaseThrust()
             self.ship.thrustJet.accelerating = True
-            self.carac.get_data(self.ship, self.rockList, self.lives, self.score, [0, 0, 1, 0])
-            #print('up')
+            self.current_inputs[2] = 1
+            # print('up')
         else:
             self.ship.thrustJet.accelerating = False
-
+            self.current_inputs[2] = 0
 
     # Check for ship hitting the rocks etc.
 

@@ -1,46 +1,107 @@
 # Imports
-import keras
-from keras.datasets import mnist
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.utils import to_categorical
+import tensorflow.keras
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten, Dropout
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import load_model
+import numpy as np
+from datetime import datetime
+from .carac_extract import load_data
+import numpy as np
+import os
 
-# Configuration options
-feature_vector_length = 784
-num_classes = 60000
 
-# Load the data
-(X_train, Y_train), (X_test, Y_test) = mnist.load_data()
+class Perceptron():
+    def __init__(self):
+        # Configuration options
+        self.num_classes = 4
 
-# Reshape the data - MLPs do not understand such things as '2D'.
-# Reshape to 28 x 28 pixels = 784 features
-X_train = X_train.reshape(X_train.shape[0], feature_vector_length)
-X_test = X_test.reshape(X_test.shape[0], feature_vector_length)
+    def load_dataset(self, debug=False):
+        # Load the data
+        # (self.X_train, self.Y_train) = load_data(
+        #   './SavedData/dataset_04-02-2020_15-06-02')
+        (self.X_train, self.Y_train) = load_data(
+            os.path.dirname(os.path.dirname(__file__)) + '/SavedData/dataset_14-02-2020_14-46-54')
 
-# Convert into greyscale
-X_train = X_train.astype('float32')
-X_test = X_test.astype('float32')
-X_train /= 255
-X_test /= 255
+        if debug:
+            print(self.X_train.shape)
+            print(self.Y_train.shape)
 
-# Convert target classes to categorical ones
-Y_train = to_categorical(Y_train, num_classes)
-Y_test = to_categorical(Y_test, num_classes)
+    def model(self):
+        # Create the model
+        self.model = Sequential()
+        self.model.add(Dense(100, input_shape=(50, 6), activation='relu'))
+        self.model.add(Dense(100, activation='relu'))
+        self.model.add(Dense(100, activation='relu'))
+        self.model.add(Dense(100, activation='relu'))
+        self.model.add(Dense(100, activation='relu'))
+        self.model.add(Dense(100, activation='relu'))
+        self.model.add(Dense(100, activation='relu'))
+        self.model.add(Dense(100, activation='relu'))
+        self.model.add(Dense(100, activation='relu'))
+        self.model.add(Flatten())
+        self.model.add(Dense(self.num_classes, activation='softmax'))
 
-# Set the input shape
-input_shape = (feature_vector_length,)
-print(f'Feature shape: {input_shape}')
+    def train(self, debug=False):
 
-# Create the model
-model = Sequential()
-model.add(Dense(350, input_shape=input_shape, activation='relu'))
-model.add(Dense(50, activation='relu'))
-model.add(Dense(num_classes, activation='softmax'))
+        # Configure the model and start training
+        self.model.compile(loss='mean_squared_error', optimizer=Adam(lr=0.0001), metrics=['accuracy'])
+        if debug:
+            print(self.model.optimizer.get_config())
+        history = self.model.fit(self.X_train, self.Y_train, epochs=500, batch_size=1000, verbose=1, shuffle=True,
+                                 validation_split=0.1)
 
-# Configure the model and start training
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-model.fit(X_train, Y_train, epochs=10, batch_size=250, verbose=1, validation_split=0.2)
+    def save_model(self):
+        self.model.save('model ' + datetime.now().strftime("%d-%m-%Y_%H-%M-%S") + '.h5')  # creates a HDF5 file
 
-# Test the model after training
-test_results = model.evaluate(X_test, Y_test, verbose=1)
-print(f'Test results - Loss: {test_results[0]} - Accuracy: {test_results[1]}%')
+    def load_model(self, model_path):
+
+        # del self.model  # deletes the existing model
+
+        # returns a compiled model
+        # identical to the previous one
+        self.model = load_model(model_path)
+
+    def predict(self, framedata, debug=False):
+        prediction = self.model.predict(framedata.reshape((1, self.X_train.shape[1], self.X_train.shape[2])))
+        if debug:
+            print('real prediction', prediction)
+
+        #arg_max = np.argmax(prediction)
+
+        result = np.zeros(4)
+        #result[arg_max] = 1
+        for i in range(len(prediction[0])):
+            if prediction[0][i] > 0.2:
+                result[i] = 1
+        return result
+
+    @staticmethod
+    def test_predict_on_model(debug=False):
+        perceptron = Perceptron()
+        perceptron.model()
+        perceptron.load_model(
+            os.path.dirname(__file__) + '/model 04-02-2020_19-51-12_81_acc_29_val.h5')
+        perceptron.load_dataset(debug=debug)
+        result = perceptron.predict(framedata=perceptron.X_train[0], debug=debug)
+
+        if debug:
+            print(result)
+
+        return result
+
+    @staticmethod
+    def test_launch_training():
+        perceptron = Perceptron()
+        perceptron.load_dataset(debug=True)
+        perceptron.model()
+        perceptron.train(debug=True)
+        perceptron.save_model()
+
+
+if __name__ == '__main__':
+    # print(os.path.dirname(os.getcwd()))
+    Perceptron.test_launch_training()
+    # Perceptron.test_predict_on_model(True)

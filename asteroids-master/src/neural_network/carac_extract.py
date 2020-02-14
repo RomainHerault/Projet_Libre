@@ -26,22 +26,63 @@ class Extract:
         print('score ', score)
 
     def get_data(self, ship, rock_list, number_life, score, input):
-        frame_data = []
+        asteroids_number = 48
+        frame_data = np.zeros((asteroids_number + 2, 6))
 
         if ship is not None:
-            ship_data = [ship.position.x, ship.position.y, ship.boundingRect.top, ship.boundingRect.bottom,
+            ship_data = [ship.position.x, ship.position.y,
+                         ship.boundingRect.top, ship.boundingRect.bottom,
                          ship.boundingRect.left, ship.boundingRect.right]
-            frame_data.append(ship_data)
-            for rock in rock_list:
-                rock_data = [rock.position.x, rock.position.y, rock.boundingRect.top, rock.boundingRect.bottom,
-                             rock.boundingRect.left, rock.boundingRect.right]
-                frame_data.append(rock_data)
+            frame_data[0] = ship_data
+            for i in range(len(rock_list)):
+                if i < asteroids_number:
+                    rock = rock_list[i]
+                    rock_data = [rock.position.x, rock.position.y,
+                                 rock.boundingRect.top, rock.boundingRect.bottom,
+                                 rock.boundingRect.left, rock.boundingRect.right]
+                    frame_data[i+1] = rock_data
+                else :
+                    print("Y'A TROP D'ASTEROIIIIIDS !!! AU SECOUUUURS !!!!")
+            # for rock in rock_list:
+            #     rock_data = [rock.position.x, rock.position.y,
+            #                  rock.boundingRect.top, rock.boundingRect.bottom,
+            #                  rock.boundingRect.left, rock.boundingRect.right]
+            #     frame_data.append(rock_data)
 
             other_data = [number_life, score, 0, 0, 0, 0]
-            frame_data.append(other_data)
+            frame_data[-1] = other_data
 
             self.dataset.append(frame_data)
-            self.ground_truth.append(input)
+            self.ground_truth.append(np.array(input))
+
+    def get_dataframe(self, ship, rock_list, number_life, score):
+        asteroids_number = 48
+        frame_data = np.zeros((asteroids_number + 2, 6))
+
+        if ship is not None:
+            ship_data = [ship.position.x, ship.position.y,
+                         ship.boundingRect.top, ship.boundingRect.bottom,
+                         ship.boundingRect.left, ship.boundingRect.right]
+            frame_data[0] = ship_data
+            for i in range(len(rock_list)):
+                if i < asteroids_number:
+                    rock = rock_list[i]
+                    rock_data = [rock.position.x, rock.position.y,
+                                 rock.boundingRect.top, rock.boundingRect.bottom,
+                                 rock.boundingRect.left, rock.boundingRect.right]
+                    frame_data[i+1] = rock_data
+                else :
+                    print("Y'A TROP D'ASTEROIIIIIDS !!! AU SECOUUUURS !!!!")
+            # for rock in rock_list:
+            #     rock_data = [rock.position.x, rock.position.y,
+            #                  rock.boundingRect.top, rock.boundingRect.bottom,
+            #                  rock.boundingRect.left, rock.boundingRect.right]
+            #     frame_data.append(rock_data)
+
+            other_data = [number_life, score, 0, 0, 0, 0]
+            frame_data[-1] = other_data
+
+            return frame_data
 
     def save_data(self):
         dataset_array = np.array(self.dataset)
@@ -50,20 +91,23 @@ class Extract:
         now = datetime.now()
         print("now =", now)
 
-        filename_string = "SavedData/dataset_"+now.strftime("%d-%m-%Y_%H-%M-%S")
+        filename_string = "SavedData/dataset_" + now.strftime(
+            "%d-%m-%Y_%H-%M-%S")
+        print(self.ground_truth)
 
-        final = [dataset_array,ground_truth]
+        final = [dataset_array, ground_truth]
 
         pickle_out = open(filename_string, "wb")
         pickle.dump(final, pickle_out)
         pickle_out.close()
 
-        #np.save('dataset.npy', dataset_array)  # save
-        #np.save('ground_truth.npy', ground_truth)  # save
+        # np.save('dataset.npy', dataset_array)  # save
+        # np.save('ground_truth.npy', ground_truth)  # save
 
-    def load_data(self, dataset_path):
-        infile = open(dataset_path, 'rb')
-        final = pickle.load(infile)
-        infile.close()
 
-        return final[0], final[1]
+def load_data(dataset_path):
+    infile = open(dataset_path, 'rb')
+    final = pickle.load(infile)
+    infile.close()
+
+    return final[0], final[1]
