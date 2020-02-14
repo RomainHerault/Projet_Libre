@@ -20,7 +20,7 @@ class Perceptron():
     def load_dataset(self, debug=False):
         # Load the data
         (self.X_train, self.Y_train) = load_data(
-            r'P:\Temp\Ecole\Projet_Libre\asteroids-master\src\SavedData\dataset_04-02-2020_15-06-02')
+            './SavedData/dataset_04-02-2020_15-06-02')
 
         if debug:
             print(self.X_train.shape)

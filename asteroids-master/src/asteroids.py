@@ -167,10 +167,10 @@ class Asteroids():
         # _, inputs = carac_extract.load_data(
         #     "D:/Romain/Documents/Projet Libre/asteroids-master/src/SavedData/dataset_04-02-2020_15-06-02")
 
-        self.gamemode = 'automatic'  # or normal
-        #self.gamemode = 'normal'
+        #self.gamemode = 'automatic'  # or normal
+        self.gamemode = 'normal'
 
-        if gamemode == 'automatic':
+        if self.gamemode == 'automatic':
             debug = False
             perceptron = Perceptron()
             perceptron.model()
