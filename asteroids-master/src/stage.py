@@ -32,7 +32,8 @@ class Stage:
         if dimensions == None:
             dimensions = pygame.display.list_modes()[0]
 
-        pygame.display.set_mode(dimensions, RESIZABLE)
+        #RESIZABLE
+        pygame.display.set_mode(dimensions, FULLSCREEN)
         pygame.mouse.set_visible(False)
 
         # pygame.display.set_mode(dimensions)

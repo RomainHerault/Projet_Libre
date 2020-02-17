@@ -12,12 +12,12 @@ class Extract:
         print('number of rocks', len(rock_list))
         for rock in rock_list:
             print('position', rock.position.x, rock.position.y)
-            print('bouding box', rock.boundingRect)
+            print('bounding box', rock.boundingRect)
 
     def display_ship(self, ship):
         if ship is not None:
             print('ship position ', ship.position.x, ship.position.y)
-            print('ship bouding box ', ship.boundingRect)
+            print('ship bounding box ', ship.boundingRect)
 
     def display_number_life(self, number_life):
         print('number of life ', number_life)
@@ -38,10 +38,12 @@ class Extract:
                 if i < asteroids_number:
                     rock = rock_list[i]
                     rock_data = [rock.position.x, rock.position.y,
-                                 rock.boundingRect.top, rock.boundingRect.bottom,
-                                 rock.boundingRect.left, rock.boundingRect.right]
-                    frame_data[i+1] = rock_data
-                else :
+                                 rock.boundingRect.top,
+                                 rock.boundingRect.bottom,
+                                 rock.boundingRect.left,
+                                 rock.boundingRect.right]
+                    frame_data[i + 1] = rock_data
+                else:
                     print("Y'A TROP D'ASTEROIIIIIDS !!! AU SECOUUUURS !!!!")
             # for rock in rock_list:
             #     rock_data = [rock.position.x, rock.position.y,
@@ -53,7 +55,8 @@ class Extract:
             frame_data[-1] = other_data
 
             self.dataset.append(frame_data)
-            self.ground_truth.append(np.array(input))
+            self.ground_truth.append(convert_to_full_input(input))
+            # self.ground_truth.append(np.array(input))
 
     def get_dataframe(self, ship, rock_list, number_life, score):
         asteroids_number = 48
@@ -68,10 +71,12 @@ class Extract:
                 if i < asteroids_number:
                     rock = rock_list[i]
                     rock_data = [rock.position.x, rock.position.y,
-                                 rock.boundingRect.top, rock.boundingRect.bottom,
-                                 rock.boundingRect.left, rock.boundingRect.right]
-                    frame_data[i+1] = rock_data
-                else :
+                                 rock.boundingRect.top,
+                                 rock.boundingRect.bottom,
+                                 rock.boundingRect.left,
+                                 rock.boundingRect.right]
+                    frame_data[i + 1] = rock_data
+                else:
                     print("Y'A TROP D'ASTEROIIIIIDS !!! AU SECOUUUURS !!!!")
             # for rock in rock_list:
             #     rock_data = [rock.position.x, rock.position.y,
@@ -111,3 +116,61 @@ def load_data(dataset_path):
     infile.close()
 
     return final[0], final[1]
+
+
+def convert_to_full_input(inputs):
+    nb_classes = 12
+    full_inputs = np.zeros(nb_classes)
+    if inputs[0] == 1:  # Gauche
+        if inputs[2] == 1:  # Avant
+            if inputs[3] == 1:  # Tir
+                full_inputs[10] = 1
+            else:
+                full_inputs[5] = 1
+        else:
+            if inputs[3] == 1:  # Tir
+                full_inputs[6] = 1
+            else:
+                full_inputs[0] = 1
+    else:
+        if inputs[1] == 1:  # Droit
+            if inputs[2] == 1:  # Avant
+                if inputs[3] == 1:  # Tir
+                    full_inputs[11] = 1
+                else:
+                    full_inputs[7] = 1
+            else:
+                if inputs[3] == 1:  # Tir
+                    full_inputs[8] = 1
+                else:
+                    full_inputs[1] = 1
+        else:
+            if inputs[2] == 1:  # Avant
+                if inputs[3] == 1:  # Tir
+                    full_inputs[9] = 1
+                else:
+                    full_inputs[2] = 1
+            if inputs[3] == 1:  # Tir
+                full_inputs[3] = 1
+            else:
+                full_inputs[4] = 1
+
+    return full_inputs
+
+
+def convert_to_simple_input(full_inputs):
+    nb_classes = 4
+    inputs = np.zeros(4)
+
+    index = np.where(full_inputs == 1)[0]
+
+    if index in [0, 5, 6, 10]:  # Gauche
+        inputs[0] = 1
+    if index in [1, 7, 8, 11]:  # Droite
+        inputs[1] = 1
+    if index in [2, 5, 7, 9, 10, 11]:  # Avant
+        inputs[2] = 1
+    if index in [3, 6, 8, 9, 10, 11]:  # Tir
+        inputs[3] = 1
+
+    return inputs

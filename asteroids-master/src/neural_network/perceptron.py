@@ -16,14 +16,14 @@ import os
 class Perceptron():
     def __init__(self):
         # Configuration options
-        self.num_classes = 4
+        self.num_classes = 12
 
     def load_dataset(self, debug=False):
         # Load the data
         # (self.X_train, self.Y_train) = load_data(
         #   './SavedData/dataset_04-02-2020_15-06-02')
         (self.X_train, self.Y_train) = load_data(
-            os.path.dirname(os.path.dirname(__file__)) + '/SavedData/dataset_14-02-2020_14-46-54')
+            os.path.dirname(os.path.dirname(__file__)) + '/SavedData/dataset_04-02-2020_15-06-02')
 
         if debug:
             print(self.X_train.shape)
@@ -69,13 +69,13 @@ class Perceptron():
         if debug:
             print('real prediction', prediction)
 
-        #arg_max = np.argmax(prediction)
+        arg_max = np.argmax(prediction)
 
-        result = np.zeros(4)
-        #result[arg_max] = 1
-        for i in range(len(prediction[0])):
-            if prediction[0][i] > 0.2:
-                result[i] = 1
+        result = np.zeros(self.num_classes)
+        result[arg_max] = 1
+        #for i in range(len(prediction[0])):
+         #   if prediction[0][i] > 0.2:
+          #      result[i] = 1
         return result
 
     @staticmethod

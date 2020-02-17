@@ -167,8 +167,8 @@ class Asteroids():
         # _, inputs = carac_extract.load_data(
         #     "D:/Romain/Documents/Projet Libre/asteroids-master/src/SavedData/dataset_04-02-2020_15-06-02")
 
-        self.gamemode = 'automatic'  # or normal
-        #self.gamemode = 'normal'
+        #self.gamemode = 'automatic'  # or normal
+        self.gamemode = 'normal'
 
         if self.gamemode == 'automatic':
             debug = False
@@ -203,7 +203,7 @@ class Asteroids():
                 if frame_data is not None and self.gameState == 'playing':
                     next_input = perceptron.predict(framedata=frame_data, debug=debug)
                     print(next_input)
-                    self.pressInput(next_input)
+                    self.pressInput(carac_extract.convert_to_simple_input(next_input))
 
             i += 1
 
