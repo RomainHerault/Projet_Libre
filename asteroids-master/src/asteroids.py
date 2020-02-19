@@ -167,14 +167,14 @@ class Asteroids():
         # _, inputs = carac_extract.load_data(
         #     "D:/Romain/Documents/Projet Libre/asteroids-master/src/SavedData/dataset_04-02-2020_15-06-02")
 
-        #self.gamemode = 'automatic'  # or normal
-        self.gamemode = 'normal'
+        self.gamemode = 'automatic'  # or normal
+        #self.gamemode = 'normal'
 
         if self.gamemode == 'automatic':
             debug = False
             perceptron = Perceptron()
             perceptron.model()
-            perceptron.load_model("./neural_network/model 14-02-2020_17-05-32_67_acc_32_val.h5")
+            perceptron.load_model("./neural_network/model 19-02-2020_01-13-26_78_acc_23_val.h5")
             perceptron.load_dataset(debug=debug)
 
         clock = pygame.time.Clock()

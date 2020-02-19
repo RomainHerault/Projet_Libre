@@ -9,6 +9,7 @@ from tensorflow.keras.models import load_model
 import numpy as np
 from datetime import datetime
 from .carac_extract import load_data
+#from neural_network import carac_extract.load_data
 import numpy as np
 import os
 
@@ -23,7 +24,7 @@ class Perceptron():
         # (self.X_train, self.Y_train) = load_data(
         #   './SavedData/dataset_04-02-2020_15-06-02')
         (self.X_train, self.Y_train) = load_data(
-            os.path.dirname(os.path.dirname(__file__)) + '/SavedData/dataset_04-02-2020_15-06-02')
+            os.path.dirname(os.path.dirname(__file__)) + '/SavedData/dataset_17-02-2020_12-20-35')
 
         if debug:
             print(self.X_train.shape)
@@ -83,7 +84,7 @@ class Perceptron():
         perceptron = Perceptron()
         perceptron.model()
         perceptron.load_model(
-            os.path.dirname(__file__) + '/model 04-02-2020_19-51-12_81_acc_29_val.h5')
+            os.path.dirname(__file__) + '/model 19-02-2020_01-13-26_78_acc_23_val.h5')
         perceptron.load_dataset(debug=debug)
         result = perceptron.predict(framedata=perceptron.X_train[0], debug=debug)
 
