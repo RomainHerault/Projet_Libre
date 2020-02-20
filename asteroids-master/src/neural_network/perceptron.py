@@ -2,14 +2,14 @@
 import tensorflow.keras
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Flatten, Dropout
+from tensorflow.keras.layers import Dense, Flatten, Dropout, LSTM, Embedding
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.models import load_model
 import numpy as np
 from datetime import datetime
 from .carac_extract import load_data
-#from neural_network import carac_extract.load_data
+# from neural_network import carac_extract.load_data
 import numpy as np
 import os
 
@@ -19,21 +19,24 @@ class Perceptron():
         # Configuration options
         self.num_classes = 12
 
+        #self.input_shape = (50,6)
+        self.input_shape = (14, 6)
+
     def load_dataset(self, debug=False):
         # Load the data
         # (self.X_train, self.Y_train) = load_data(
         #   './SavedData/dataset_04-02-2020_15-06-02')
         (self.X_train, self.Y_train) = load_data(
-            os.path.dirname(os.path.dirname(__file__)) + '/SavedData/dataset_17-02-2020_12-20-35')
+            os.path.dirname(os.path.dirname(__file__)) + '/SavedData/dataset_20-02-2020_17-36-31')
 
         if debug:
             print(self.X_train.shape)
             print(self.Y_train.shape)
 
-    def model(self):
+    def model_perceptron(self):
         # Create the model
         self.model = Sequential()
-        self.model.add(Dense(100, input_shape=(50, 6), activation='relu'))
+        self.model.add(Dense(100, input_shape=self.input_shape, activation='relu'))
         self.model.add(Dense(100, activation='relu'))
         self.model.add(Dense(100, activation='relu'))
         self.model.add(Dense(100, activation='relu'))
@@ -45,13 +48,29 @@ class Perceptron():
         self.model.add(Flatten())
         self.model.add(Dense(self.num_classes, activation='softmax'))
 
+    def model_rnn(self):
+        # Create the model
+        self.model = Sequential()
+        # self.model.add(Embedding(input_dim = 50*6, output_dim=64))
+        # self.model.add(Dense(100, input_shape=(50, 6), activation='relu'))
+
+        self.model.add(LSTM(14*6*2, return_sequences=True,
+                            input_shape=self.input_shape))
+        self.model.add(LSTM(14 * 6,return_sequences=True))
+        self.model.add(LSTM(14 * 6))
+        self.model.add(Dense(14*6, activation='relu'))
+        self.model.add(Dense(14*6, activation='relu'))
+        self.model.add(Dense(14*6, activation='relu'))
+        self.model.add(Flatten())
+        self.model.add(Dense(self.num_classes, activation='softmax'))
+
     def train(self, debug=False):
 
         # Configure the model and start training
         self.model.compile(loss='mean_squared_error', optimizer=Adam(lr=0.0001), metrics=['accuracy'])
         if debug:
             print(self.model.optimizer.get_config())
-        history = self.model.fit(self.X_train, self.Y_train, epochs=500, batch_size=1000, verbose=1, shuffle=True,
+        history = self.model.fit(self.X_train, self.Y_train, epochs=500, batch_size=1000, verbose=1, shuffle=False,
                                  validation_split=0.1)
 
     def save_model(self):
@@ -74,9 +93,9 @@ class Perceptron():
 
         result = np.zeros(self.num_classes)
         result[arg_max] = 1
-        #for i in range(len(prediction[0])):
-         #   if prediction[0][i] > 0.2:
-          #      result[i] = 1
+        # for i in range(len(prediction[0])):
+        #   if prediction[0][i] > 0.2:
+        #      result[i] = 1
         return result
 
     @staticmethod
@@ -97,7 +116,7 @@ class Perceptron():
     def test_launch_training():
         perceptron = Perceptron()
         perceptron.load_dataset(debug=True)
-        perceptron.model()
+        perceptron.model_rnn()
         perceptron.train(debug=True)
         perceptron.save_model()
 

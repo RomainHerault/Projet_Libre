@@ -26,7 +26,9 @@ class Extract:
         print('score ', score)
 
     def get_data(self, ship, rock_list, number_life, score, input):
-        asteroids_number = 48
+
+        #asteroids_number = 48
+        asteroids_number = 12
         frame_data = np.zeros((asteroids_number + 2, 6))
 
         if ship is not None:
@@ -59,7 +61,8 @@ class Extract:
             # self.ground_truth.append(np.array(input))
 
     def get_dataframe(self, ship, rock_list, number_life, score):
-        asteroids_number = 48
+        #asteroids_number = 48
+        asteroids_number = 12
         frame_data = np.zeros((asteroids_number + 2, 6))
 
         if ship is not None:
