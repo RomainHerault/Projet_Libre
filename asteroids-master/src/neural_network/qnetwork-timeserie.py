@@ -322,7 +322,7 @@ if __name__ == "__main__":
 
             action = agent.get_action(history)
 
-            # 1: 정지, 2: 왼쪽, 3: 오른쪽
+            # 1: stop, 2: left, 3: right
 
             if action == 0:
 

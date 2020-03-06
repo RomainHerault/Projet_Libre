@@ -197,7 +197,7 @@ if __name__ == "__main__":
 
             # Choose your action from the previous 4 states
             action = agent.get_action(history)
-            # 1: 정지, 2: 왼쪽, 3: 오른쪽
+            # 1: stop, 2: left, 3: right
             if action == 0:
                 real_action = 1
             elif action == 1:
@@ -207,7 +207,7 @@ if __name__ == "__main__":
 
             # One time step in the environment with the selected action
             observe, reward, done, info = env.step(real_action)
-            # 각 타임스텝마다 상태 전처리
+            # State preprocessing for each time step
             next_state = pre_processing(observe)
             next_state = np.reshape([next_state], (1, 84, 84, 1))
             next_history = np.append(next_state, history[:, :, :, :3], axis=3)
