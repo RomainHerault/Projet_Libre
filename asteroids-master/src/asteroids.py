@@ -184,7 +184,8 @@ class Asteroids():
             self.frameCount += 1
             if self.frameCount % 10 == 0:  # every 10 frames
                 # nearest integer
-                self.fps = round((self.frameCount / (self.timePassed / 1000.0)))
+                self.fps = round(
+                    (self.frameCount / (self.timePassed / 1000.0)))
                 # reset counter
                 self.timePassed = 0
                 self.frameCount = 0
@@ -200,7 +201,6 @@ class Asteroids():
                     print(next_input)
                     self.pressInput(
                         carac_extract.convert_to_simple_input(next_input))
-
 
             self.input(pygame.event.get())
 
@@ -227,14 +227,43 @@ class Asteroids():
             else:
                 self.displayText()
 
-            # self.carac.display_rock_position(self.rockList)
-            # self.carac.display_score(self.score)
-            # self.carac.display_number_life(self.lives)
-            # self.carac.display_ship(self.ship)
-            # self.carac.get_data(self.ship,self.rockList,self.lives,self.score)
-
             # Double buffer draw
             pygame.display.flip()
+
+    def step(self, action):
+
+        # calculate fps
+        self.timePassed += self.clock.tick(60)
+        self.frameCount += 1
+        if self.frameCount % 10 == 0:  # every 10 frames
+            # nearest integer
+            self.fps = round((self.frameCount / (self.timePassed / 1000.0)))
+            # reset counter
+            self.timePassed = 0
+            self.frameCount = 0
+
+        self.secondsCount += 1
+        self.pressInput(self.convert_to_simple_input(action))
+
+        self.input(pygame.event.get())
+
+        self.stage.screen.fill((10, 10, 10))
+        self.stage.moveSprites()
+        self.stage.drawSprites()
+        # self.doSaucerLogic()
+        self.displayScore()
+
+        self.checkScore()
+
+        # Process keys
+        if self.gameState == 'playing':
+            self.playing()
+
+        elif self.gameState == 'exploding':
+            self.exploding()
+
+        # Double buffer draw
+        pygame.display.flip()
 
     def get_screen_as_nparray(self):
         """To get image"""
@@ -279,8 +308,6 @@ class Asteroids():
                 self.gameState == "done"
             else:
                 self.createNewShip()
-
-
 
     def levelUp(self):
         self.numRocks += 1
@@ -524,15 +551,33 @@ class Asteroids():
             self.nextLife += 10000
             self.addLife(self.lives)
 
+    def convert_to_simple_input(self, full_inputs):
+        nb_classes = 4
+        inputs = np.zeros(4)
 
-# Script to run the game
-if not pygame.font:
-    print('Warning, fonts disabled')
-if not pygame.mixer:
-    print('Warning, sound disabled')
+        index = np.where(full_inputs == 1)[0]
 
-initSoundManager()
-game = Asteroids()  # create object game from class Asteroids
-game.playGame()
+        if index in [0, 5, 6, 10]:  # Gauche
+            inputs[0] = 1
+        if index in [1, 7, 8, 11]:  # Droite
+            inputs[1] = 1
+        if index in [2, 5, 7, 9, 10, 11]:  # Avant
+            inputs[2] = 1
+        if index in [3, 6, 8, 9, 10, 11]:  # Tir
+            inputs[3] = 1
+
+        return inputs
+
+
+if __name__ == "__main__":
+    # Script to run the game
+    if not pygame.font:
+        print('Warning, fonts disabled')
+    if not pygame.mixer:
+        print('Warning, sound disabled')
+
+    initSoundManager()
+    game = Asteroids()  # create object game from class Asteroids
+    game.playGame()
 
 ####
