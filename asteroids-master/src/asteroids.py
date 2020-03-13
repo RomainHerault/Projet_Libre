@@ -65,6 +65,14 @@ class Asteroids():
 
         self.current_inputs = [0, 0, 0, 0]
 
+        # self.gamemode = 'automatic'  # or normal
+
+        self.clock = pygame.time.Clock()
+
+        self.frameCount = 0.0
+        self.timePassed = 0.0
+        self.fps = 0.0
+
     def initialiseGame(self):
         self.gameState = 'playing'
         [self.stage.removeSprite(sprite)
@@ -81,6 +89,9 @@ class Asteroids():
 
         self.createRocks(self.numRocks)
         self.secondsCount = 1
+
+    def is_done(self):
+        return self.gameState == "done"
 
     def createNewShip(self):
         if self.ship:
@@ -160,25 +171,23 @@ class Asteroids():
                 "./neural_network/model 19-02-2020_01-13-26_78_acc_23_val.h5")
             perceptron.load_dataset(debug=debug)
 
-        clock = pygame.time.Clock()
+        self.clock = pygame.time.Clock()
 
-        i = 0
-
-        frameCount = 0.0
-        timePassed = 0.0
+        self.frameCount = 0.0
+        self.timePassed = 0.0
         self.fps = 0.0
         # Main loop
         while True:
 
             # calculate fps
-            timePassed += clock.tick(60)
-            frameCount += 1
-            if frameCount % 10 == 0:  # every 10 frames
+            self.timePassed += self.clock.tick(60)
+            self.frameCount += 1
+            if self.frameCount % 10 == 0:  # every 10 frames
                 # nearest integer
-                self.fps = round((frameCount / (timePassed / 1000.0)))
+                self.fps = round((self.frameCount / (self.timePassed / 1000.0)))
                 # reset counter
-                timePassed = 0
-                frameCount = 0
+                self.timePassed = 0
+                self.frameCount = 0
 
             self.secondsCount += 1
 
@@ -192,7 +201,6 @@ class Asteroids():
                     self.pressInput(
                         carac_extract.convert_to_simple_input(next_input))
 
-            i += 1
 
             self.input(pygame.event.get())
 
@@ -272,8 +280,7 @@ class Asteroids():
             else:
                 self.createNewShip()
 
-    def is_done(self):
-        return self.gameState == "done"
+
 
     def levelUp(self):
         self.numRocks += 1
