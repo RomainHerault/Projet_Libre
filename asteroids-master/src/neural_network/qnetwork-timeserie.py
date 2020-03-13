@@ -142,15 +142,17 @@ class DRQNAgent:
 
         model = Sequential()
 
-        model.add(TimeDistributed(Conv2D(32, (8, 8), strides=(4, 4), activation='relu'),
-
-                                  input_shape=(10, 84, 84, 1)))
+        model.add(TimeDistributed(
+            Conv2D(32, (8, 8), strides=(4, 4), activation='relu'),
+            input_shape=(10, 84, 84, 1)))
 
         # input_shape=(time_step, row, col, channels)
 
-        model.add(TimeDistributed(Conv2D(64, (4, 4), strides=(2, 2), activation='relu')))
+        model.add(TimeDistributed(
+            Conv2D(64, (4, 4), strides=(2, 2), activation='relu')))
 
-        model.add(TimeDistributed(Conv2D(64, (3, 3), strides=(1, 1), activation='relu')))
+        model.add(TimeDistributed(
+            Conv2D(64, (3, 3), strides=(1, 1), activation='relu')))
 
         model.add(TimeDistributed(Flatten()))
 
@@ -223,7 +225,8 @@ class DRQNAgent:
 
             else:
 
-                target[i] = reward[i] + self.discount_factor * np.amax(target_value[i])
+                target[i] = reward[i] + self.discount_factor * np.amax(
+                    target_value[i])
 
         loss = self.optimizer([history, action, target])
 
@@ -349,7 +352,8 @@ if __name__ == "__main__":
 
             next_history = next_state.reshape(1, 1, 84, 84, 1)
 
-            next_history = np.append(next_history, history[:, :9, :, :, :], axis=1)
+            next_history = np.append(next_history, history[:, :9, :, :, :],
+                                     axis=1)
 
             next_history = np.reshape([next_history], (1, 10, 84, 84, 1))
 

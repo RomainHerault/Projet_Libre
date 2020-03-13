@@ -27,7 +27,8 @@
 # p for pause
 # j for toggle showing FPS
 # o for frame advance whilst paused
-
+from PIL import Image
+import numpy as np
 import pygame
 import sys
 import os
@@ -125,26 +126,26 @@ class Asteroids():
             # self.pressKey(pygame.locals.K_LEFT)
             # print(type(key[K_LEFT]))
             keyboard.press(Key.left)
-            #print("gauche")
+            # print("gauche")
         else:
             # self.releaseKey(pygame.locals.K_LEFT)
             # key[K_LEFT] = 0
             keyboard.release(Key.left)
         if input[1] == 1:
             keyboard.press(Key.right)
-            #print("droite")
+            # print("droite")
         else:
             keyboard.release(Key.right)
         # self.pressKey(pygame.locals.K_RIGHT)
         if input[2] == 1:
             keyboard.press(Key.up)
-            #print("haut")
+            # print("haut")
         else:
             keyboard.release(Key.up)
         # self.pressKey(pygame.locals.K_UP)
         if input[3] == 1:
             keyboard.press(Key.space)
-            #print("tir")
+            # print("tir")
         else:
             keyboard.release(Key.space)
 
@@ -167,14 +168,15 @@ class Asteroids():
         # _, inputs = carac_extract.load_data(
         #     "D:/Romain/Documents/Projet Libre/asteroids-master/src/SavedData/dataset_04-02-2020_15-06-02")
 
-        self.gamemode = 'automatic'  # or normal
-        #self.gamemode = 'normal'
+        # self.gamemode = 'automatic'  # or normal
+        self.gamemode = 'normal'
 
         if self.gamemode == 'automatic':
             debug = False
             perceptron = Perceptron()
             perceptron.model()
-            perceptron.load_model("./neural_network/model 19-02-2020_01-13-26_78_acc_23_val.h5")
+            perceptron.load_model(
+                "./neural_network/model 19-02-2020_01-13-26_78_acc_23_val.h5")
             perceptron.load_dataset(debug=debug)
 
         clock = pygame.time.Clock()
@@ -199,11 +201,14 @@ class Asteroids():
 
             self.secondsCount += 1
             if self.gamemode == 'automatic':
-                frame_data = self.carac.get_dataframe(self.ship, self.rockList, self.lives, self.score)
+                frame_data = self.carac.get_dataframe(self.ship, self.rockList,
+                                                      self.lives, self.score)
                 if frame_data is not None and self.gameState == 'playing':
-                    next_input = perceptron.predict(framedata=frame_data, debug=debug)
+                    next_input = perceptron.predict(framedata=frame_data,
+                                                    debug=debug)
                     print(next_input)
-                    self.pressInput(carac_extract.convert_to_simple_input(next_input))
+                    self.pressInput(
+                        carac_extract.convert_to_simple_input(next_input))
 
             i += 1
 
@@ -226,6 +231,7 @@ class Asteroids():
             # Process keys
             if self.gameState == 'playing':
                 self.playing()
+
                 if self.gamemode == 'normal':
                     self.carac.get_data(self.ship, self.rockList,
                                         self.lives, self.score,
@@ -243,6 +249,11 @@ class Asteroids():
 
             # Double buffer draw
             pygame.display.flip()
+
+    def get_screen_as_nparray(self):
+        """To get image"""
+        img = pygame.surfarray.array3d(self.stage.screen)
+        return img.swapaxes(0, 1)
 
     def playing(self):
         if self.lives == 0:
