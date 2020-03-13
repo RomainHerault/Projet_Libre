@@ -176,7 +176,7 @@ class Asteroids():
             debug = False
             perceptron = Perceptron()
             perceptron.model_rnn()
-            perceptron.load_model("./neural_network/model 20-02-2020_18-15-04_90_acc_20_val.h5")
+            perceptron.load_model("./neural_network/model 06-03-2020_16-27-52_71_acc_14_val.h5")
             perceptron.load_dataset(debug=debug)
 
         clock = pygame.time.Clock()
@@ -186,6 +186,8 @@ class Asteroids():
         frameCount = 0.0
         timePassed = 0.0
         self.fps = 0.0
+
+        frame_datas = []
         # Main loop
         while True:
 
@@ -203,7 +205,8 @@ class Asteroids():
             if self.gamemode == 'automatic':
                 frame_data = self.carac.get_dataframe(self.ship, self.rockList, self.lives, self.score)
                 if frame_data is not None and self.gameState == 'playing':
-                    next_input = perceptron.predict(framedata=frame_data, debug=debug)
+                    frame_datas.append(frame_data)
+                    next_input = perceptron.predict(framedata=frame_datas, debug=debug)
                     #print(next_input)
                     self.pressInput(carac_extract.convert_to_simple_input(next_input))
 
