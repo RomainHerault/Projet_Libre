@@ -258,10 +258,8 @@ class Asteroids():
         # Process keys
         if self.gameState == 'playing':
             self.playing()
-
         elif self.gameState == 'exploding':
             self.exploding()
-
         # Double buffer draw
         pygame.display.flip()
 
@@ -272,7 +270,8 @@ class Asteroids():
 
     def playing(self):
         if self.lives == 0:
-            self.gameState = 'attract_mode'
+            #self.gameState = 'attract_mode'
+            self.gameState = 'done'
         else:
             self.processKeys()
             self.checkCollisions()
@@ -305,7 +304,6 @@ class Asteroids():
 
             if self.lives == 0:
                 self.ship.visible = False
-                self.gameState == "done"
             else:
                 self.createNewShip()
 
@@ -361,6 +359,7 @@ class Asteroids():
             # if event.key == K_RETURN:
             print("lancement")
             self.initialiseGame()
+
         for event in events:
             if event.type == QUIT:
                 sys.exit(0)
@@ -368,20 +367,19 @@ class Asteroids():
                 if event.key == K_ESCAPE:
                     if self.gamemode == 'normal':
                         sys.exit(0)
-                if event.key == K_s:
-                    if self.gameState == 'playing':
-                        if event.key == K_SPACE:
-                            self.ship.fireBullet()
-                            self.current_inputs[3] = 1
-                            # print('Fire bullet')
-                        elif event.key == K_b:
-                            self.ship.fireBullet()
-                            self.current_inputs[3] = 1
-                        elif event.key == K_h:
-                            self.ship.enterHyperSpace()
-                            self.current_inputs[3] = 0
-                        else:
-                            self.current_inputs[3] = 0
+                if self.gameState == 'playing':
+                    if event.key == K_SPACE:
+                        self.ship.fireBullet()
+                        self.current_inputs[3] = 1
+                        # print('Fire bullet')
+                    elif event.key == K_b:
+                        self.ship.fireBullet()
+                        self.current_inputs[3] = 1
+                    elif event.key == K_h:
+                        self.ship.enterHyperSpace()
+                        self.current_inputs[3] = 0
+                    else:
+                        self.current_inputs[3] = 0
                 # elif self.gameState == 'attract_mode':
                 #     # Start a new game
                 #     if event.key == K_RETURN:
