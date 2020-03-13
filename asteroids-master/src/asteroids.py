@@ -272,6 +272,9 @@ class Asteroids():
             else:
                 self.createNewShip()
 
+    def is_done(self):
+        return self.gameState == "done"
+
     def levelUp(self):
         self.numRocks += 1
         self.createRocks(self.numRocks)
