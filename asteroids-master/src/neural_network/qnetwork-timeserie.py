@@ -25,6 +25,8 @@ import random
 
 import gym
 
+import time
+
 # from keras.utils.training_utils import multi_gpu_model
 
 
@@ -37,7 +39,7 @@ class DRQNAgent:
 
     def __init__(self, action_size):
 
-        self.render = False
+        self.render = True
 
         self.load_model = False
 
@@ -83,7 +85,7 @@ class DRQNAgent:
 
         # Tensor Board Settings
 
-        self.sess = tf.InteractiveSession()
+        self.sess = tf.compat.v1.InteractiveSession()
 
         K.set_session(self.sess)
 
@@ -98,7 +100,7 @@ class DRQNAgent:
         self.sess.run(tf.global_variables_initializer())
 
         if self.load_model:
-            self.model.load_weights("./save_model/breakout_drqn15.h5")
+            self.model.load_weights("breakout_drqn15.h5")
 
     # Store samples <s, a, r, s'> in replay memory
 
@@ -421,4 +423,4 @@ if __name__ == "__main__":
         # Save Model Every 1000 Episodes
 
         if e % 1000 == 0:
-            agent.model.save_weights("./save_model/breakout_drqn15.h5")
+            agent.model.save_weights("breakout_drqn15.h5")
