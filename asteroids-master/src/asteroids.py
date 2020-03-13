@@ -65,7 +65,6 @@ class Asteroids():
 
         self.current_inputs = [0, 0, 0, 0]
 
-        self.carac = carac_extract.Extract()
 
     def initialiseGame(self):
         self.gameState = 'playing'
@@ -149,24 +148,8 @@ class Asteroids():
         else:
             keyboard.release(Key.space)
 
-    # self.pressKey(pygame.locals.K_SPACE)
-    #
-    # def releaseKey(self, pygame_code):
-    #     newevent = pygame.event.Event(pygame.locals.KEYUP,
-    #                                   key=pygame_code,
-    #                                   mod=pygame.locals.KMOD_NONE)  # create the event
-    #     pygame.event.post(newevent)  # add the event to the queue
-    #
-    # def pressKey(self, pygame_code):
-    #     newevent = pygame.event.Event(pygame.locals.KEYDOWN,
-    #                                   key=pygame_code,
-    #                                   mod=pygame.locals.KMOD_NONE)  # create the event
-    #     pygame.event.post(newevent)  # add the event to the queue
 
     def playGame(self):
-
-        # _, inputs = carac_extract.load_data(
-        #     "D:/Romain/Documents/Projet Libre/asteroids-master/src/SavedData/dataset_04-02-2020_15-06-02")
 
         # self.gamemode = 'automatic'  # or normal
         self.gamemode = 'normal'
@@ -200,6 +183,7 @@ class Asteroids():
                 frameCount = 0
 
             self.secondsCount += 1
+
             if self.gamemode == 'automatic':
                 frame_data = self.carac.get_dataframe(self.ship, self.rockList,
                                                       self.lives, self.score)
@@ -232,10 +216,6 @@ class Asteroids():
             if self.gameState == 'playing':
                 self.playing()
 
-                if self.gamemode == 'normal':
-                    self.carac.get_data(self.ship, self.rockList,
-                                        self.lives, self.score,
-                                        self.current_inputs)
             elif self.gameState == 'exploding':
                 self.exploding()
             else:
@@ -340,19 +320,19 @@ class Asteroids():
     # Should move the ship controls into the ship class
     def input(self, events):
         self.frameAdvance = False
+        if self.gameState == 'attract_mode':
+            # Start a new game
+            # if event.key == K_RETURN:
+            print("lancement")
+            self.initialiseGame()
         for event in events:
             if event.type == QUIT:
                 sys.exit(0)
             elif event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
                     if self.gamemode == 'normal':
-                        self.carac.save_data()
-                        print("save data")
                     sys.exit(0)
                 if event.key == K_s:
-                    if self.gamemode == 'normal':
-                        self.carac.save_data()
-                    print("save data")
                 if self.gameState == 'playing':
                     if event.key == K_SPACE:
                         self.ship.fireBullet()
@@ -366,10 +346,11 @@ class Asteroids():
                         self.current_inputs[3] = 0
                     else:
                         self.current_inputs[3] = 0
-                elif self.gameState == 'attract_mode':
-                    # Start a new game
-                    if event.key == K_RETURN:
-                        self.initialiseGame()
+                # elif self.gameState == 'attract_mode':
+                #     # Start a new game
+                #     if event.key == K_RETURN:
+                #         self.initialiseGame()
+
 
                 if event.key == K_p:
                     if self.paused:  # (is True)
