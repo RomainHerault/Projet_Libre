@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import tensorflow as tf
-tf.disable_v2_behavior()
 
 from keras.layers.convolutional import Conv2D
 from keras.layers import Dense, Flatten, LSTM, TimeDistributed
@@ -11,8 +10,7 @@ from keras.models import Sequential
 from skimage.transform import resize
 from skimage.color import rgb2gray
 from collections import deque
-import tensorflow.python.keras.backend as K
-#from keras import backend as K
+from keras import backend as K
 
 
 import numpy as np
@@ -60,7 +58,7 @@ class DRQNAgent:
         self.optimizer = self.optimizer()
 
         # Tensor Board Settings
-        self.sess = tf.compat.v1.InteractiveSession()
+        self.sess = tf.InteractiveSession()
         K.set_session(self.sess)
         self.avg_q_max, self.avg_loss = 0, 0
         self.summary_placeholders, self.update_ops, self.summary_op = self.setup_summary()
@@ -270,4 +268,4 @@ if __name__ == "__main__":
 
         # Save Model Every 1000 Episodes
         if e % 1000 == 0:
-            agent.model.save_weights("./save_model/asteroids_drqn15.h5")
+            agent.model.save_weights("save_model/asteroids_drqn15.h5")

@@ -40,12 +40,15 @@ def initSoundManager():
 
 
 def playSound(soundName):
-    channel = sounds[soundName].play()
+    #channel = sounds[soundName].play()
+    pass
 
 
 def playSoundContinuous(soundName):
-    channel = sounds[soundName].play(-1)
+    #channel = sounds[soundName].play(-1)
+    pass
 
 
 def stopSound(soundName):
-    channel = sounds[soundName].stop()
+    #channel = sounds[soundName].stop()
+    pass
