@@ -13,6 +13,7 @@ from collections import deque
 from keras import backend as K
 
 import pickle
+import os
 
 import numpy as np
 import random
@@ -184,6 +185,11 @@ def pre_processing(observe):
 
 
 if __name__ == "__main__":
+
+    # create save_model folder
+    if not os.path.isdir("save_model"):
+        os.mkdir("save_model")
+
     # Your environment and DRQN ​​agents
     env = Environement()
     agent = DRQNAgent(action_size=12)
