@@ -114,16 +114,12 @@ class DRQNAgent:
     def get_action(self, history):
         # modified
         history = np.float32(history / 255.0)
-        index = 0
         if np.random.rand() <= self.epsilon:
-            index = random.randrange(self.action_size)
+            return random.randrange(self.action_size)
         else:
             q_value = self.model.predict(history)
-            index = np.argmax(q_value[0])
+            return np.argmax(q_value[0])
 
-        result = np.zeros((self.action_size))
-        result[index] = 1
-        return result
 
     # Train models with randomly extracted batches from replay memory
     def train_model(self):
@@ -184,7 +180,7 @@ def pre_processing(observe):
 if __name__ == "__main__":
     # Your environment and DRQN ​​agents
     env = Environement()
-    agent = DRQNAgent(action_size=13)
+    agent = DRQNAgent(action_size=12)
     scores, episodes, global_step = [], [], 0
     for e in range(EPISODES):
         done = False
