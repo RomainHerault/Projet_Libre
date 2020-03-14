@@ -63,7 +63,7 @@ class Asteroids():
         self.lives = 0
         self.gamemode = 'normal'
 
-        self.current_inputs = [0, 0, 0, 0]
+        # self.current_inputs = [0, 0, 0, 0]
 
         # self.gamemode = 'automatic'  # or normal
 
@@ -235,16 +235,16 @@ class Asteroids():
     def step(self, action):
 
         # calculate fps
-        self.timePassed += self.clock.tick(60)
-        self.frameCount += 1
-        if self.frameCount % 10 == 0:  # every 10 frames
+        # self.timePassed += self.clock.tick(60)
+        # self.frameCount += 1
+        # if self.frameCount % 10 == 0:  # every 10 frames
             # nearest integer
-            self.fps = round((self.frameCount / (self.timePassed / 1000.0)))
+            # self.fps = round((self.frameCount / (self.timePassed / 1000.0)))
             # reset counter
-            self.timePassed = 0
-            self.frameCount = 0
+            # self.timePassed = 0
+            # self.frameCount = 0
 
-        self.secondsCount += 1
+        # self.secondsCount += 1
         self.pressInput(self.convert_to_simple_input(action))
 
         self.input(pygame.event.get())
@@ -372,16 +372,16 @@ class Asteroids():
                 if self.gameState == 'playing':
                     if event.key == K_SPACE:
                         self.ship.fireBullet()
-                        self.current_inputs[3] = 1
+                        # self.current_inputs[3] = 1
                         # print('Fire bullet')
                     elif event.key == K_b:
                         self.ship.fireBullet()
-                        self.current_inputs[3] = 1
+                        # self.current_inputs[3] = 1
                     elif event.key == K_h:
                         self.ship.enterHyperSpace()
-                        self.current_inputs[3] = 0
-                    else:
-                        self.current_inputs[3] = 0
+                        # self.current_inputs[3] = 0
+                    # else:
+                        # self.current_inputs[3] = 0
                 # elif self.gameState == 'attract_mode':
                 #     # Start a new game
                 #     if event.key == K_RETURN:
@@ -413,23 +413,23 @@ class Asteroids():
 
         if key[K_LEFT] or key[K_z]:
             self.ship.rotateLeft()
-            self.current_inputs[0] = 1
-            self.current_inputs[1] = 0
+            # self.current_inputs[0] = 1
+            # self.current_inputs[1] = 0
             # print('left')
         elif key[K_RIGHT] or key[K_x]:
             self.ship.rotateRight()
-            self.current_inputs[0] = 0
-            self.current_inputs[1] = 1
+            # self.current_inputs[0] = 0
+            # self.current_inputs[1] = 1
             # print('right')
 
         if key[K_UP] or key[K_n]:
             self.ship.increaseThrust()
             self.ship.thrustJet.accelerating = True
-            self.current_inputs[2] = 1
+            # self.current_inputs[2] = 1
             # print('up')
         else:
             self.ship.thrustJet.accelerating = False
-            self.current_inputs[2] = 0
+            # self.current_inputs[2] = 0
 
     # Check for ship hitting the rocks etc.
 
@@ -555,15 +555,15 @@ class Asteroids():
         nb_classes = 4
         inputs = np.zeros(4)
 
-        index = np.where(full_inputs == 1)[0]
+        # index = np.where(full_inputs == 1)[0]
 
-        if index in [0, 5, 6, 10]:  # Gauche
+        if full_inputs in [0, 5, 6, 10]:  # Gauche
             inputs[0] = 1
-        if index in [1, 7, 8, 11]:  # Droite
+        if full_inputs in [1, 7, 8, 11]:  # Droite
             inputs[1] = 1
-        if index in [2, 5, 7, 9, 10, 11]:  # Avant
+        if full_inputs in [2, 5, 7, 9, 10, 11]:  # Avant
             inputs[2] = 1
-        if index in [3, 6, 8, 9, 10, 11]:  # Tir
+        if full_inputs in [3, 6, 8, 9, 10, 11]:  # Tir
             inputs[3] = 1
 
         return inputs
