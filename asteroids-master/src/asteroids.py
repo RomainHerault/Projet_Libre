@@ -122,7 +122,9 @@ class Asteroids():
                                 random.randrange(-10, 10))
 
             newRock = Rock(self.stage, position, Rock.largeRockType)
+
             self.stage.addSprite(newRock)
+
             self.rockList.append(newRock)
 
     def pressInput(self, input):
@@ -250,7 +252,7 @@ class Asteroids():
         self.stage.screen.fill((10, 10, 10))
         self.stage.moveSprites()
         self.stage.drawSprites()
-        # self.doSaucerLogic()
+        self.doSaucerLogic()
         self.displayScore()
 
         self.checkScore()

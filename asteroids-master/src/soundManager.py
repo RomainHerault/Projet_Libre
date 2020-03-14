@@ -27,6 +27,7 @@ sounds = {}  # create empty dictionary of sounds
 
 def initSoundManager():
     pygame.mixer.init()
+    # print("path sound :", os.path.dirname(os.path.dirname(__file__)))
     sounds["fire"] = pygame.mixer.Sound("../res/FIRE.WAV")
     sounds["explode1"] = pygame.mixer.Sound("../res/EXPLODE1.WAV")
     sounds["explode2"] = pygame.mixer.Sound("../res/EXPLODE2.WAV")

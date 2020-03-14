@@ -12,17 +12,20 @@ from keras import backend as K
 import tensorflow as tf
 import numpy as np
 import random
+from environement import *
+
 import gym
 
 # from keras.utils.training_utils import multi_gpu_model
 
 EPISODES = 50000
 
+
 # DRQN Agent at Breakout
 class DRQNAgent:
 
     def __init__(self, action_size):
-        self.render = True
+        self.render = False
         self.load_model = False
         # Define size of behavior
         self.action_size = action_size
@@ -109,13 +112,18 @@ class DRQNAgent:
 
     # Choosing behavior with the epsilon greed policy
     def get_action(self, history):
+        # modified
         history = np.float32(history / 255.0)
+        index = 0
         if np.random.rand() <= self.epsilon:
-            return random.randrange(self.action_size)
+            index = random.randrange(self.action_size)
         else:
             q_value = self.model.predict(history)
-            print("q_value = ", q_value[0])
-            return np.argmax(q_value[0])
+            index = np.argmax(q_value[0])
+
+        result = np.zeros((self.action_size))
+        result[index] = 1
+        return result
 
     # Train models with randomly extracted batches from replay memory
     def train_model(self):
@@ -175,8 +183,8 @@ def pre_processing(observe):
 
 if __name__ == "__main__":
     # Your environment and DRQN ​​agents
-    env = gym.make('BreakoutDeterministic-v4')
-    agent = DRQNAgent(action_size=3)
+    env = Environement()
+    agent = DRQNAgent(action_size=13)
     scores, episodes, global_step = [], [], 0
     for e in range(EPISODES):
         done = False
@@ -193,8 +201,8 @@ if __name__ == "__main__":
         history = np.reshape([history], (1, 10, 84, 84, 1))
 
         while not done:
-            if agent.render:
-                env.render()
+            # if agent.render:
+            #     env.render()
             global_step += 1
             step += 1
 
@@ -202,15 +210,15 @@ if __name__ == "__main__":
             action = agent.get_action(history)
 
             # 1: stop, 2: left, 3: right
-            if action == 0:
-                real_action = 1
-            elif action == 1:
-                real_action = 2
-            else:
-                real_action = 3
+            # if action == 0:
+            #     real_action = 1
+            # elif action == 1:
+            #     real_action = 2
+            # else:
+            #     real_action = 3
 
             # One time step in the environment with the selected action
-            observe, reward, done, info = env.step(real_action)
+            observe, reward, done, info = env.step(action)
             # reward = reward * 10
             # State preprocessing for each time step
             next_state = pre_processing(observe)
@@ -221,10 +229,9 @@ if __name__ == "__main__":
             next_history = np.reshape([next_history], (1, 10, 84, 84, 1))
             agent.avg_q_max += np.amax(
                 agent.model.predict(np.float32(history / 255.))[0])
-
-            if start_life > info['ale.lives']:
+            if start_life > info:
                 dead = True
-                start_life = info['ale.lives']
+                start_life = info
             reward = np.clip(reward, -1., 1.)
 
             # Save sample <s, a, r, s'>
@@ -263,4 +270,4 @@ if __name__ == "__main__":
 
         # Save Model Every 1000 Episodes
         if e % 1000 == 0:
-            agent.model.save_weights("./save_model/breakout_drqn15.h5")
+            agent.model.save_weights("./save_model/asteroids_drqn15.h5")
