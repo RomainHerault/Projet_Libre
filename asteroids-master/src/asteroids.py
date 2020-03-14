@@ -359,7 +359,7 @@ class Asteroids():
         if self.gameState == 'attract_mode':
             # Start a new game
             # if event.key == K_RETURN:
-            print("lancement")
+            #print("lancement")
             self.initialiseGame()
 
         for event in events:
