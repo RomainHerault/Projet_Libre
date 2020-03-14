@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import tensorflow as tf
+tf.disable_v2_behavior()
+
 from keras.layers.convolutional import Conv2D
 from keras.layers import Dense, Flatten, LSTM, TimeDistributed
 from keras.optimizers import RMSprop
@@ -8,13 +11,14 @@ from keras.models import Sequential
 from skimage.transform import resize
 from skimage.color import rgb2gray
 from collections import deque
-from keras import backend as K
-import tensorflow as tf
+import tensorflow.python.keras.backend as K
+#from keras import backend as K
+
+
 import numpy as np
 import random
 from environement import *
 
-import gym
 
 # from keras.utils.training_utils import multi_gpu_model
 
@@ -56,7 +60,7 @@ class DRQNAgent:
         self.optimizer = self.optimizer()
 
         # Tensor Board Settings
-        self.sess = tf.InteractiveSession()
+        self.sess = tf.compat.v1.InteractiveSession()
         K.set_session(self.sess)
         self.avg_q_max, self.avg_loss = 0, 0
         self.summary_placeholders, self.update_ops, self.summary_op = self.setup_summary()
