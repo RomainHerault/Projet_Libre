@@ -12,11 +12,11 @@ from skimage.color import rgb2gray
 from collections import deque
 from keras import backend as K
 
+import pickle
 
 import numpy as np
 import random
 from environement import *
-
 
 # from keras.utils.training_utils import multi_gpu_model
 
@@ -28,7 +28,7 @@ class DRQNAgent:
 
     def __init__(self, action_size):
         self.render = False
-        self.load_model = False
+        self.load_model = True
         # Define size of behavior
         self.action_size = action_size
 
@@ -68,6 +68,11 @@ class DRQNAgent:
 
         if self.load_model:
             self.model.load_weights("save_model/asteroids_drqn15.h5")
+            self.model.load_weights("save_model/asteroids_drqn15_target.h5")
+
+            pickle_in = open("save_model/memory.pickle", "rb")
+            self.memory = pickle.load(pickle_in)
+            pickle_in.close()
 
     # Store samples <s, a, r, s'> in replay memory
     def append_sample(self, history, action, reward, next_history, dead):
@@ -121,7 +126,6 @@ class DRQNAgent:
         else:
             q_value = self.model.predict(history)
             return np.argmax(q_value[0])
-
 
     # Train models with randomly extracted batches from replay memory
     def train_model(self):
@@ -269,3 +273,8 @@ if __name__ == "__main__":
         # Save Model Every 1000 Episodes
         if e % 1000 == 0:
             agent.model.save_weights("save_model/asteroids_drqn15.h5")
+            agent.model.save_weights("save_model/asteroids_drqn15_target.h5")
+
+            pickle_out = open("save_model/memory.pickle", "wb")
+            pickle.dump(agent.memory, pickle_out)
+            pickle_out.close()
