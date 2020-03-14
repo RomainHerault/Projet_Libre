@@ -67,6 +67,10 @@ class DRQNAgent:
             'summary/breakout_drqn15', self.sess.graph)
         self.sess.run(tf.global_variables_initializer())
 
+        # Define previous param if model if loaded
+        self.prev_EPISODES = 0
+        self.prev_global_step = 0
+
         if self.load_model:
             self.model.load_weights("save_model/asteroids_drqn15.h5")
             self.model.load_weights("save_model/asteroids_drqn15_target.h5")
@@ -74,6 +78,8 @@ class DRQNAgent:
             pickle_in = open("save_model/memory.pickle", "rb")
             self.memory = pickle.load(pickle_in)
             pickle_in.close()
+
+            load_training_param(self)
 
     # Store samples <s, a, r, s'> in replay memory
     def append_sample(self, history, action, reward, next_history, dead):
@@ -184,6 +190,26 @@ def pre_processing(observe):
     return processed_observe
 
 
+def save_training_param(agent, e, global_step):
+    pickle_out = open("save_model/training_param.pickle", "wb")
+    pickle.dump([e, global_step, agent.epsilon, agent.avg_q_max, agent.avg_loss], pickle_out)
+    pickle_out.close()
+
+def load_training_param(agent):
+    pickle_in = open("save_model/training_param.pickle", "rb")
+    tupl = pickle.load(pickle_in)
+    pickle_in.close()
+
+    agent.prev_EPISODES = tupl[0]
+    agent.prev_global_step = tupl[1]
+    agent.epsilon = tupl[2]
+    agent.avg_q_max = tupl[3]
+    agent.avg_loss = tupl[4]
+
+
+
+
+
 if __name__ == "__main__":
 
     # create save_model folder
@@ -193,8 +219,8 @@ if __name__ == "__main__":
     # Your environment and DRQN ​​agents
     env = Environement()
     agent = DRQNAgent(action_size=12)
-    scores, episodes, global_step = [], [], 0
-    for e in range(EPISODES):
+    scores, episodes, global_step = [], [], agent.prev_global_step
+    for e in range(agent.prev_EPISODES,EPISODES):
         done = False
         dead = False
         step, score, start_life = 0, 0, 5
@@ -276,11 +302,13 @@ if __name__ == "__main__":
                       agent.avg_loss / float(step))
                 agent.avg_q_max, agent.avg_loss = 0, 0
 
-        # Save Model Every 1000 Episodes
-        if e % 1000 == 0:
+        # Save Model Every 1 Episodes
+        if e % 1 == 0:
             agent.model.save_weights("save_model/asteroids_drqn15.h5")
             agent.model.save_weights("save_model/asteroids_drqn15_target.h5")
 
             pickle_out = open("save_model/memory.pickle", "wb")
             pickle.dump(agent.memory, pickle_out)
             pickle_out.close()
+
+            save_training_param(agent, e, global_step)
