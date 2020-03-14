@@ -67,7 +67,7 @@ class DRQNAgent:
         self.sess.run(tf.global_variables_initializer())
 
         if self.load_model:
-            self.model.load_weights("./save_model/breakout_drqn15.h5")
+            self.model.load_weights("save_model/asteroids_drqn15.h5")
 
     # Store samples <s, a, r, s'> in replay memory
     def append_sample(self, history, action, reward, next_history, dead):
