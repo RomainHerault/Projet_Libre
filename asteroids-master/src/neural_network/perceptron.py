@@ -11,7 +11,7 @@ from tensorflow.keras.models import load_model
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 from datetime import datetime
-from .carac_extract import load_data
+from carac_extract import load_data
 # from neural_network import carac_extract.load_data
 import numpy as np
 import os
@@ -27,7 +27,7 @@ class Perceptron():
         self.X_train = None
         self.Y_train = None
         self.model = None
-        self.batch_size = 100
+        self.batch_size = 5
 
     def load_dataset(self, debug=False):
         # Load the data
@@ -68,7 +68,7 @@ class Perceptron():
         #                     batch_input_shape=(self.batch_size, 1, 14 * 6)))
         self.model.add(TimeDistributed(
             Dense(14 * 6 * 2, activation='relu',
-                 ), batch_input_shape=(self.batch_size, 1, 14 * 6)))
+                 ), batch_input_shape=(self.batch_size, 5, 14 * 6)))
         self.model.add(TimeDistributed(Dense(14 * 6, activation='relu')))
         self.model.add(TimeDistributed(Dense(14 * 6, activation='relu')))
         self.model.add(TimeDistributed(Dense(14 * 6*2, activation='relu')))
@@ -77,14 +77,11 @@ class Perceptron():
         self.model.add(TimeDistributed(Dense(14 * 3, activation='relu')))
         # self.model.add(LSTM(14 * 6, return_sequences=True, stateful=True,
         #                     batch_input_shape=(self.batch_size, 1, 14 * 6)))
-        self.model.add(LSTM(14*6, stateful=True,
-                            batch_input_shape=(self.batch_size, 1, 14 * 6)))
-        self.model.add(Flatten())
+        self.model.add(TimeDistributed(Flatten()))
+        self.model.add(LSTM(14*6))
         self.model.add(Dense(self.num_classes, activation='softmax'))
 
     def train(self, debug=False):
-
-
         # Configure the model and start training
         self.model.compile(loss='mean_squared_error',
                            optimizer=Adam(lr=0.0001), metrics=['accuracy'])
@@ -95,9 +92,6 @@ class Perceptron():
                                  validation_split=0.1)
 
     def trainRNN(self, debug=False):
-
-
-
         # train_size = int(len(dataset) * 0.67)
         # test_size = len(dataset) - train_size
         # train, test = dataset[0:train_size, :], dataset[
@@ -114,9 +108,13 @@ class Perceptron():
         scaler = MinMaxScaler(feature_range=(0, 1))
         self.X_train = scaler.fit_transform(self.X_train)
 
-        self.X_train = self.X_train.reshape(self.X_train.shape[0], 1,
+
+        # self.X_train.shape[0]
+        self.X_train = self.X_train.reshape(8000, 5,
                                             self.X_train.shape[1])
 
+        self.Y_train = self.Y_train.reshape(8000, 5,
+                                            self.Y_train.shape[1])
         # Configure the model and start training
         self.model.compile(loss='mean_squared_error',
                            optimizer=Adam(lr=0.0001), metrics=['accuracy'])
