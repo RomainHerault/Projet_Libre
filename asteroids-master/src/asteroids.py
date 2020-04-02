@@ -27,6 +27,8 @@
 # p for pause
 # j for toggle showing FPS
 # o for frame advance whilst paused
+import math
+
 from PIL import Image
 import numpy as np
 import pygame
@@ -49,7 +51,8 @@ class Asteroids():
     explodingTtl = 180
 
     def __init__(self):
-        self.stage = Stage('Atari Asteroids', (1024, 768))
+        self.stage = Stage('Atari Asteroids',
+                           (int(1024 / 1.5), int(768 / 1.5)))  # (1024, 768)
         self.paused = False
         self.showingFPS = False
         self.frameAdvance = False
@@ -238,11 +241,11 @@ class Asteroids():
         # self.timePassed += self.clock.tick(60)
         # self.frameCount += 1
         # if self.frameCount % 10 == 0:  # every 10 frames
-            # nearest integer
-            # self.fps = round((self.frameCount / (self.timePassed / 1000.0)))
-            # reset counter
-            # self.timePassed = 0
-            # self.frameCount = 0
+        # nearest integer
+        # self.fps = round((self.frameCount / (self.timePassed / 1000.0)))
+        # reset counter
+        # self.timePassed = 0
+        # self.frameCount = 0
 
         # self.secondsCount += 1
         self.pressInput(self.convert_to_simple_input(action))
@@ -270,9 +273,34 @@ class Asteroids():
         img = pygame.surfarray.array3d(self.stage.screen)
         return img.swapaxes(0, 1)
 
+    def get_dataframe(self):
+        asteroids_number = 99
+        frame_data = np.zeros((asteroids_number + 1, 6))
+        frame_data.fill(-1)
+
+        if self.ship is not None:
+            ship_data = [self.ship.position.x / 683, self.ship.position.y / 512,
+                         max(self.ship.boundingRect.top, 0) / 512,
+                         max(self.ship.boundingRect.bottom, 0) / 512,
+                         max(self.ship.boundingRect.left, 0) / 683,
+                         max(self.ship.boundingRect.right, 0) / 683]
+            frame_data[0] = ship_data
+            for i in range(len(self.rockList)):
+                if i < asteroids_number:
+                    rock = self.rockList[i]
+                    rock_data = [rock.position.x/683, rock.position.y/512,
+                                 max(rock.boundingRect.top, 0) / 512,
+                                 max(rock.boundingRect.bottom, 0) / 512,
+                                 max(rock.boundingRect.left, 0) / 683,
+                                 max(rock.boundingRect.right, 0) / 683]
+                    frame_data[i + 1] = rock_data
+                else:
+                    print("Y'A TROP D'ASTEROIIIIIDS !!! AU SECOUUUURS !!!!")
+            return frame_data
+
     def playing(self):
         if self.lives == 0:
-            #self.gameState = 'attract_mode'
+            # self.gameState = 'attract_mode'
             self.gameState = 'done'
         else:
             self.processKeys()
@@ -359,7 +387,7 @@ class Asteroids():
         if self.gameState == 'attract_mode':
             # Start a new game
             # if event.key == K_RETURN:
-            #print("lancement")
+            # print("lancement")
             self.initialiseGame()
 
         for event in events:
@@ -381,7 +409,7 @@ class Asteroids():
                         self.ship.enterHyperSpace()
                         # self.current_inputs[3] = 0
                     # else:
-                        # self.current_inputs[3] = 0
+                    # self.current_inputs[3] = 0
                 # elif self.gameState == 'attract_mode':
                 #     # Start a new game
                 #     if event.key == K_RETURN:

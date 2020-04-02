@@ -58,9 +58,9 @@ class Extract:
             self.ground_truth.append(convert_to_full_input(input))
             # self.ground_truth.append(np.array(input))
 
-    def get_dataframe(self, ship, rock_list, number_life, score):
+    def get_dataframe(self, ship, rock_list):
         asteroids_number = 48
-        frame_data = np.zeros((asteroids_number + 2, 6))
+        frame_data = np.zeros((asteroids_number, 6))
 
         if ship is not None:
             ship_data = [ship.position.x, ship.position.y,
@@ -83,9 +83,6 @@ class Extract:
             #                  rock.boundingRect.top, rock.boundingRect.bottom,
             #                  rock.boundingRect.left, rock.boundingRect.right]
             #     frame_data.append(rock_data)
-
-            other_data = [number_life, score, 0, 0, 0, 0]
-            frame_data[-1] = other_data
 
             return frame_data
 
