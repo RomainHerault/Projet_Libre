@@ -305,7 +305,7 @@ if __name__ == "__main__":
         # Save Model Every 100 Episodes
         if e % 100 == 0:
             agent.model.save_weights("save_model/asteroids_drqn15.h5")
-            agent.model.save_weights("save_model/asteroids_drqn15_target.h5")
+            agent.target_model.save_weights("save_model/asteroids_drqn15_target.h5")
 
             # pickle_out = open("save_model/memory.pickle", "wb")
             # pickle.dump(agent.memory, pickle_out)
