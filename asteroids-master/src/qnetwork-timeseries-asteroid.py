@@ -25,19 +25,27 @@ import gym
 
 # from keras.utils.training_utils import multi_gpu_model
 
-EPISODES = 50000
+EPISODES = 50000  # we want to do 50 000 games for the training
 
 
 # DRQN Agent at asteroid
 class DRQNAgent:
+    """
+    This class contain the main network,the target network and all hyper parameters needed.
+    """
 
     def __init__(self, action_size):
-        self.render = False
-        self.load_model = False
+        self.render = False  # render the game while training do no not work with Asteroid game
+        self.load_model = False  # restart training where it was previously stopped
         # Define size of behavior
         self.action_size = action_size
 
         # DRQN Hyperparameters
+
+        """
+        epsilon is used to determine whether the network should take a random action or choose by himself.
+        It decay during the training until the network only take 10% of random action to prevent local minima issue
+        """
         self.epsilon = 1.
         self.epsilon_start, self.epsilon_end = 1.0, 0.1
         self.exploration_steps = 1000000.
@@ -45,7 +53,7 @@ class DRQNAgent:
                                                     / self.exploration_steps
         self.batch_size = 32
         self.train_start = 50000
-        self.update_target_rate = 10000
+        self.update_target_rate = 10000  # update target network
         self.discount_factor = 0.99
 
         # Replay memory, max size 400000
@@ -59,7 +67,7 @@ class DRQNAgent:
         self.target_model = self.build_model()
         # self.target_model = multi_gpu_model(self.target_model, gpus = 4)
 
-        self.update_target_model()
+        self.update_target_model()  # init target model with main model
         self.optimizer = self.optimizer()
 
         # Tensor Board Settings
@@ -83,12 +91,18 @@ class DRQNAgent:
 
             load_training_param(self)
 
-    # Store samples <s, a, r, s'> in replay memory
+
     def append_sample(self, history, action, reward, next_history, dead):
+        """
+        Store samples <s, a, r, s'> in replay memory
+        """
         self.memory.append((history, action, reward, next_history, dead))
 
-    # Directly define optimization function to use Huber Loss
+
     def optimizer(self):
+        """
+        Directly define optimization function to use Huber Loss
+        """
         a = K.placeholder(shape=(None,), dtype='int32')
         y = K.placeholder(shape=(None,), dtype='float32')
         prediction = self.model.output
@@ -103,8 +117,11 @@ class DRQNAgent:
         train = K.function([self.model.input, a, y], [loss], updates=updates)
         return train
 
-    # Create a neural network with state as input and queue function output
+
     def build_model(self):
+        """
+        Create a neural network with state as input and queue function output
+        """
         model = Sequential()
         model.add(TimeDistributed(
             Conv2D(32, (8, 8), strides=(4, 4), activation='relu'),
@@ -122,12 +139,17 @@ class DRQNAgent:
         model.summary()
         return model
 
-    # Update the target model with the weight of the model
+
     def update_target_model(self):
+        """
+        Update the target model with the weight of the model
+        """
         self.target_model.set_weights(self.model.get_weights())
 
-    # Choosing behavior with the epsilon greed policy
     def get_action(self, history):
+        """
+        Choosing behavior with the epsilon greed policy
+        """
         # modified
         history = np.float32(history / 255.0)
         if np.random.rand() <= self.epsilon:
@@ -137,8 +159,10 @@ class DRQNAgent:
             return np.argmax(q_value[0])
 
 
-    # Train models with randomly extracted batches from replay memory
     def train_model(self):
+        """
+        Train models with randomly extracted batches from replay memory
+        """
         if self.epsilon > self.epsilon_end:
             self.epsilon -= self.epsilon_decay_step
 
@@ -166,8 +190,10 @@ class DRQNAgent:
         loss = self.optimizer([history, action, target])
         self.avg_loss += loss[0]
 
-    # Record learning information for each episode
     def setup_summary(self):
+        """
+        Record learning information for each episode
+        """
         episode_total_reward = tf.Variable(0.)
         episode_avg_max_q = tf.Variable(0.)
         episode_duration = tf.Variable(0.)
@@ -186,19 +212,27 @@ class DRQNAgent:
         return summary_placeholders, update_ops, summary_op
 
 
-# Preprocessing with black and white screen to speed up learning
 def pre_processing(observe):
+    """
+    Preprocessing with black and white screen to speed up learning
+    """
     processed_observe = np.uint8(
         resize(rgb2gray(observe), (84, 84), mode='constant') * 255)
     return processed_observe
 
 
 def save_training_param(agent, e, global_step):
+    """
+    Saves all training parameters to restart training.
+    """
     pickle_out = open("save_model/training_param.pickle", "wb")
     pickle.dump([e, global_step, agent.epsilon, agent.avg_q_max, agent.avg_loss], pickle_out)
     pickle_out.close()
 
 def load_training_param(agent):
+    """
+    Loads all training parameters to restart training.
+    """
     pickle_in = open("save_model/training_param.pickle", "rb")
     tupl = pickle.load(pickle_in)
     pickle_in.close()
@@ -234,7 +268,7 @@ if __name__ == "__main__":
         # ( 10, 84, 84, 1 )
         history = np.reshape([history], (1, 10, 84, 84, 1))
 
-        while not done:
+        while not done:  # stops when game over
             # if agent.render:
             #     env.render()
             global_step += 1
@@ -242,14 +276,6 @@ if __name__ == "__main__":
 
             # Choose your action from the previous 4 states
             action = agent.get_action(history)
-
-            # 1: stop, 2: left, 3: right
-            # if action == 0:
-            #     real_action = 1
-            # elif action == 1:
-            #     real_action = 2
-            # else:
-            #     real_action = 3
 
             # One time step in the environment with the selected action
             observe, reward, done, info = env.step(action)
@@ -271,7 +297,7 @@ if __name__ == "__main__":
             # Save sample <s, a, r, s'>
             agent.append_sample(history, action, reward, next_history, dead)
 
-            if len(agent.memory) >= agent.train_start:
+            if len(agent.memory) >= agent.train_start:  # if experience replay filled start training
                 agent.train_model()
 
             # Update the target model with the weight of the model every time
