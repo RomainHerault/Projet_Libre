@@ -36,7 +36,7 @@ class DRQNAgent:
         # DRQN Hyperparameters
         self.epsilon = 1.
         self.epsilon_start, self.epsilon_end = 1.0, 0.1
-        self.exploration_steps = 1000000.
+        self.exploration_steps = 250000.
         self.epsilon_decay_step = (self.epsilon_start - self.epsilon_end) \
                                   / self.exploration_steps
         self.batch_size = 32
@@ -45,7 +45,7 @@ class DRQNAgent:
         self.discount_factor = 0.99
 
         # Replay memory, max size 400000
-        self.memory = deque(maxlen=400000)
+        self.memory = deque(maxlen=100000)
         self.no_op_steps = 30
 
         # Create model and target model, initialize target model and assign model to gpu
@@ -75,9 +75,9 @@ class DRQNAgent:
             self.model.load_weights("save_model/asteroids_drqn15.h5")
             self.model.load_weights("save_model/asteroids_drqn15_target.h5")
 
-            pickle_in = open("save_model/memory.pickle", "rb")
-            self.memory = pickle.load(pickle_in)
-            pickle_in.close()
+            # pickle_in = open("save_model/memory.pickle", "rb")
+            # self.memory = pickle.load(pickle_in)
+            # pickle_in.close()
 
             load_training_param(self)
 
@@ -302,10 +302,10 @@ if __name__ == "__main__":
                       agent.avg_loss / float(step))
                 agent.avg_q_max, agent.avg_loss = 0, 0
 
-        # Save Model Every 1 Episodes
-        if e % 1 == 0:
+        # Save Model Every 10 Episodes
+        if e % 10 == 0:
             agent.model.save_weights("save_model/asteroids_drqn15.h5")
-            agent.model.save_weights("save_model/asteroids_drqn15_target.h5")
+            agent.target_model.save_weights("save_model/asteroids_drqn15_target.h5")
 
             pickle_out = open("save_model/memory.pickle", "wb")
             pickle.dump(agent.memory, pickle_out)

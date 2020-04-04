@@ -36,13 +36,9 @@ class Environement():
         self.game.playGame()
 
     def step(self, action):
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
 
+        for i in range(17):
+            self.game.step(action)
 
         if self.game.lives < self.prev_lives:
             reward = -1

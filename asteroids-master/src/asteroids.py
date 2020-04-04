@@ -49,7 +49,7 @@ class Asteroids():
     explodingTtl = 180
 
     def __init__(self):
-        self.stage = Stage('Atari Asteroids', (1024, 768))
+        self.stage = Stage('Atari Asteroids', (int(1024), int(768)))
         self.paused = False
         self.showingFPS = False
         self.frameAdvance = False
