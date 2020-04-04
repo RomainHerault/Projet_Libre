@@ -128,3 +128,4 @@ class Point(VectorSprite):
             self.stage.removeSprite(self)
 
         VectorSprite.move(self)
+
