@@ -36,25 +36,8 @@ class EnvironementVect():
         self.game.playGame()
 
     def step(self, action):
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-        self.game.step(action)
-
+        for _ in range(18):
+            self.game.step(action)
 
         if self.game.lives < self.prev_lives:
             reward = -1
