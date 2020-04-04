@@ -16,7 +16,7 @@ class Environement():
         Init the game.
         """
 
-        self.prev_lives = 0
+        self.prev_lives = 5
         self.prev_score = 0
 
         # Script to run the game
