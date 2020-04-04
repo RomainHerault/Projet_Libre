@@ -28,12 +28,12 @@ import gym
 EPISODES = 50000
 
 
-# DRQN Agent at Breakout
+# DRQN Agent at asteroid
 class DRQNAgent:
 
     def __init__(self, action_size):
         self.render = False
-        self.load_model = True
+        self.load_model = False
         # Define size of behavior
         self.action_size = action_size
 
@@ -77,7 +77,7 @@ class DRQNAgent:
 
         if self.load_model:
             self.model.load_weights("save_model/asteroids_drqn15.h5")
-            self.model.load_weights("save_model/asteroids_drqn15_target.h5")
+            self.target_model.load_weights("save_model/asteroids_drqn15_target.h5")
 
             self.memory = joblib.load("save_model/memory.lz4")
 
