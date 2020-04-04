@@ -50,7 +50,7 @@ class DRQNAgent:
         self.epsilon_start, self.epsilon_end = 1.0, 0.1
         self.exploration_steps = 1000000.
         self.epsilon_decay_step = (self.epsilon_start - self.epsilon_end) \
-                                  / self.exploration_steps
+                                                    / self.exploration_steps
         self.batch_size = 32
         self.train_start = 50000
         self.update_target_rate = 10000  # update target network

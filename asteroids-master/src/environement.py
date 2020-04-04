@@ -6,7 +6,7 @@ import time
 
 class Environement():
     """
-    This class is the envirorement for the network.
+    This class is the enviroement for the network.
     It's used to run the game Asteroid step by step
     and get all parameters <screenshot, reward, gameover, lives remaining>
     """
@@ -64,6 +64,8 @@ class Environement():
             # it means he has destroyed asteroid and get positive reward
             score_diff = self.game.score - self.prev_score
             reward = score_diff / 200
+        self.prev_score = self.game.score
+        self.prev_lives = self.game.lives
 
         return self.game.get_screen_as_nparray(), reward, self.game.is_done(), self.game.lives
 
