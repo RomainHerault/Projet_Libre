@@ -39,7 +39,7 @@ class DRQNAgent:
         self.discount_factor = 0.99
 
         # Replay memory, max size 400000
-        self.memory = deque(maxlen=400000)
+        self.memory = deque(maxlen=100000)
         self.no_op_steps = 30
 
         # Create model and target model, initialize target model and assign model to gpu

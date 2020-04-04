@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from datetime import datetime
 
+import joblib
 import tensorflow as tf
 
 from keras.layers.convolutional import Conv2D
@@ -19,24 +21,26 @@ import numpy as np
 import random
 from environement import *
 
+import gym
+
 # from keras.utils.training_utils import multi_gpu_model
 
 EPISODES = 50000
 
 
-# DRQN Agent at Breakout
+# DRQN Agent at asteroid
 class DRQNAgent:
 
     def __init__(self, action_size):
         self.render = False
-        self.load_model = True
+        self.load_model = False
         # Define size of behavior
         self.action_size = action_size
 
         # DRQN Hyperparameters
         self.epsilon = 1.
         self.epsilon_start, self.epsilon_end = 1.0, 0.1
-        self.exploration_steps = 250000.
+        self.exploration_steps = 1000000.
         self.epsilon_decay_step = (self.epsilon_start - self.epsilon_end) \
                                   / self.exploration_steps
         self.batch_size = 32
@@ -45,7 +49,7 @@ class DRQNAgent:
         self.discount_factor = 0.99
 
         # Replay memory, max size 400000
-        self.memory = deque(maxlen=100000)
+        self.memory = deque(maxlen=150000)
         self.no_op_steps = 30
 
         # Create model and target model, initialize target model and assign model to gpu
@@ -73,11 +77,9 @@ class DRQNAgent:
 
         if self.load_model:
             self.model.load_weights("save_model/asteroids_drqn15.h5")
-            self.model.load_weights("save_model/asteroids_drqn15_target.h5")
+            self.target_model.load_weights("save_model/asteroids_drqn15_target.h5")
 
-            # pickle_in = open("save_model/memory.pickle", "rb")
-            # self.memory = pickle.load(pickle_in)
-            # pickle_in.close()
+            self.memory = joblib.load("save_model/memory.lz4")
 
             load_training_param(self)
 
@@ -133,6 +135,7 @@ class DRQNAgent:
         else:
             q_value = self.model.predict(history)
             return np.argmax(q_value[0])
+
 
     # Train models with randomly extracted batches from replay memory
     def train_model(self):
@@ -205,9 +208,6 @@ def load_training_param(agent):
     agent.epsilon = tupl[2]
     agent.avg_q_max = tupl[3]
     agent.avg_loss = tupl[4]
-
-
-
 
 
 if __name__ == "__main__":
@@ -302,13 +302,31 @@ if __name__ == "__main__":
                       agent.avg_loss / float(step))
                 agent.avg_q_max, agent.avg_loss = 0, 0
 
-        # Save Model Every 10 Episodes
-        if e % 10 == 0:
+        # Save Model Every 100 Episodes
+        if e % 100 == 0:
             agent.model.save_weights("save_model/asteroids_drqn15.h5")
             agent.target_model.save_weights("save_model/asteroids_drqn15_target.h5")
 
-            pickle_out = open("save_model/memory.pickle", "wb")
-            pickle.dump(agent.memory, pickle_out)
-            pickle_out.close()
+            # pickle_out = open("save_model/memory.pickle", "wb")
+            # pickle.dump(agent.memory, pickle_out)
+            # pickle_out.close()
+
+            try:
+                joblib.dump(agent.memory, "save_model/memory_temp.lz4",
+                            compress='lz4')
+            except MemoryError:
+                try:
+                    joblib.dump(agent.memory, "save_model/memory_temp.lz4",
+                                compress='lz4')
+                except MemoryError:
+                    # pickle_out.close()
+                    print("Memory error")
+                    raise MemoryError("Erreur de mémoire")
+            print("saved at ", datetime.now())
+            # pickle_out.close()
+            if os.path.exists("save_model/memory.lz4"):
+                os.remove("save_model/memory.lz4")
+            os.rename("save_model/memory_temp.lz4",
+                      "save_model/memory.lz4")
 
             save_training_param(agent, e, global_step)
