@@ -7,7 +7,7 @@ import time
 class Environement():
     def __init__(self):
 
-        self.prev_lives = 0
+        self.prev_lives = 5
         self.prev_score = 0
         # Script to run the game
         if not pygame.font:
@@ -27,8 +27,8 @@ class Environement():
 
         initSoundManager()
         self.game = Asteroids()  # create object game from class Asteroids
-        self.prev_score = self.game.score
-        self.prev_lives = self.game.lives
+        self.prev_score = 0
+        self.prev_lives = 5
 
         return self.game.get_screen_as_nparray(), 0, self.game.is_done(), self.game.lives
 
