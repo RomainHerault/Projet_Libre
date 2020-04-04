@@ -1,8 +1,6 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from datetime import datetime
 
-import joblib
 import tensorflow as tf
 
 from keras.layers.convolutional import Conv2D
@@ -13,13 +11,15 @@ from skimage.transform import resize
 from skimage.color import rgb2gray
 from collections import deque
 from keras import backend as K
+import joblib
+from datetime import datetime
 
 import pickle
 import os
 
 import numpy as np
 import random
-from environement import *
+from environement_vect import *
 
 import gym
 
@@ -28,16 +28,17 @@ import gym
 EPISODES = 50000
 
 
-# DRQN Agent at asteroid
+# DRQN Agent at Breakout
 class DRQNAgent:
 
     def __init__(self, action_size):
         self.render = False
-        self.load_model = False
+        self.load_model = True
         # Define size of behavior
         self.action_size = action_size
 
-        # DRQN Hyperparameters
+        # DRQN Hy perparameters
+
         self.epsilon = 1.
         self.epsilon_start, self.epsilon_end = 1.0, 0.1
         self.exploration_steps = 1000000.
@@ -68,7 +69,7 @@ class DRQNAgent:
         self.avg_q_max, self.avg_loss = 0, 0
         self.summary_placeholders, self.update_ops, self.summary_op = self.setup_summary()
         self.summary_writer = tf.summary.FileWriter(
-            'summary/breakout_drqn15', self.sess.graph)
+            'summary_vect/breakout_drqn15', self.sess.graph)
         self.sess.run(tf.global_variables_initializer())
 
         # Define previous param if model if loaded
@@ -76,10 +77,10 @@ class DRQNAgent:
         self.prev_global_step = 0
 
         if self.load_model:
-            self.model.load_weights("save_model/asteroids_drqn15.h5")
-            self.target_model.load_weights("save_model/asteroids_drqn15_target.h5")
-
-            self.memory = joblib.load("save_model/memory.lz4")
+            self.model.load_weights("save_model_vect/asteroids_drqn15.h5")
+            self.model.load_weights(
+                "save_model_vect/asteroids_drqn15_target.h5")
+            self.memory = joblib.load("save_model_vect/memory.lz4")
 
             load_training_param(self)
 
@@ -87,7 +88,8 @@ class DRQNAgent:
     def append_sample(self, history, action, reward, next_history, dead):
         self.memory.append((history, action, reward, next_history, dead))
 
-    # Directly define optimization function to use Huber Loss
+        # Directly define optimization function to use Huber Loss
+
     def optimizer(self):
         a = K.placeholder(shape=(None,), dtype='int32')
         y = K.placeholder(shape=(None,), dtype='float32')
@@ -103,18 +105,17 @@ class DRQNAgent:
         train = K.function([self.model.input, a, y], [loss], updates=updates)
         return train
 
-    # Create a neural network with state as input and queue function output
+        # Create a neural network with state as input and queue function output
+
     def build_model(self):
         model = Sequential()
+        model.add(TimeDistributed(Dense(100, activation='relu'),
+                                  input_shape=(10, 100, 6)))
         model.add(TimeDistributed(
-            Conv2D(32, (8, 8), strides=(4, 4), activation='relu'),
-            input_shape=(10, 84, 84, 1)))
+            Dense(128, activation='relu')))
+        model.add(TimeDistributed(
+            Dense(128, activation='relu')))
 
-        # input_shape=(time_step, row, col, channels)
-        model.add(TimeDistributed(
-            Conv2D(64, (4, 4), strides=(2, 2), activation='relu')))
-        model.add(TimeDistributed(
-            Conv2D(64, (3, 3), strides=(1, 1), activation='relu')))
         model.add(TimeDistributed(Flatten()))
         model.add(LSTM(512))
         model.add(Dense(128, activation='relu'))
@@ -122,35 +123,37 @@ class DRQNAgent:
         model.summary()
         return model
 
-    # Update the target model with the weight of the model
+        # Update the target model with the weight of the model
+
     def update_target_model(self):
         self.target_model.set_weights(self.model.get_weights())
 
-    # Choosing behavior with the epsilon greed policy
+        # Choosing behavior with the epsilon greed policy
+
     def get_action(self, history):
         # modified
-        history = np.float32(history / 255.0)
+        history = np.float32(history)
         if np.random.rand() <= self.epsilon:
             return random.randrange(self.action_size)
         else:
             q_value = self.model.predict(history)
             return np.argmax(q_value[0])
 
+        # Train models with randomly extracted batches from replay memory
 
-    # Train models with randomly extracted batches from replay memory
     def train_model(self):
         if self.epsilon > self.epsilon_end:
             self.epsilon -= self.epsilon_decay_step
 
         mini_batch = random.sample(self.memory, self.batch_size)
-        history = np.zeros((self.batch_size, 10, 84, 84, 1))
-        next_history = np.zeros((self.batch_size, 10, 84, 84, 1))
+        history = np.zeros((self.batch_size, 10, 100, 6))
+        next_history = np.zeros((self.batch_size, 10, 100, 6))
         target = np.zeros((self.batch_size,))
         action, reward, dead = [], [], []
 
         for i in range(self.batch_size):
-            history[i] = np.float32(mini_batch[i][0] / 255.)
-            next_history[i] = np.float32(mini_batch[i][3] / 255.)
+            history[i] = np.float32(mini_batch[i][0])
+            next_history[i] = np.float32(mini_batch[i][3])
             action.append(mini_batch[i][1])
             reward.append(mini_batch[i][2])
             dead.append(mini_batch[i][4])
@@ -166,7 +169,8 @@ class DRQNAgent:
         loss = self.optimizer([history, action, target])
         self.avg_loss += loss[0]
 
-    # Record learning information for each episode
+        # Record learning information for each episode
+
     def setup_summary(self):
         episode_total_reward = tf.Variable(0.)
         episode_avg_max_q = tf.Variable(0.)
@@ -194,12 +198,15 @@ def pre_processing(observe):
 
 
 def save_training_param(agent, e, global_step):
-    pickle_out = open("save_model/training_param.pickle", "wb")
-    pickle.dump([e, global_step, agent.epsilon, agent.avg_q_max, agent.avg_loss], pickle_out)
+    pickle_out = open("save_model_vect/training_param.pickle", "wb")
+    pickle.dump(
+        [e, global_step, agent.epsilon, agent.avg_q_max, agent.avg_loss],
+        pickle_out)
     pickle_out.close()
 
+
 def load_training_param(agent):
-    pickle_in = open("save_model/training_param.pickle", "rb")
+    pickle_in = open("save_model_vect/training_param.pickle", "rb")
     tupl = pickle.load(pickle_in)
     pickle_in.close()
 
@@ -213,26 +220,26 @@ def load_training_param(agent):
 if __name__ == "__main__":
 
     # create save_model folder
-    if not os.path.isdir("save_model"):
-        os.mkdir("save_model")
+    if not os.path.isdir("save_model_vect"):
+        os.mkdir("save_model_vect")
 
     # Your environment and DRQN ​​agents
-    env = Environement()
+    env = EnvironementVect()
     agent = DRQNAgent(action_size=12)
     scores, episodes, global_step = [], [], agent.prev_global_step
-    for e in range(agent.prev_EPISODES,EPISODES):
+    for e in range(agent.prev_EPISODES, EPISODES):
         done = False
         dead = False
         step, score, start_life = 0, 0, 5
         observe = env.reset()
         for _ in range(random.randint(1, agent.no_op_steps)):
             observe, _, _, _ = env.step(1)
-        state = pre_processing(observe)
-        state = state.reshape(84, 84, 1)
+        state = observe
+        state = state.reshape(100, 6)
         history = np.stack((state, state, state, state, state,
                             state, state, state, state, state), axis=0)
         # ( 10, 84, 84, 1 )
-        history = np.reshape([history], (1, 10, 84, 84, 1))
+        history = np.reshape([history], (1, 10, 100, 6))
 
         while not done:
             # if agent.render:
@@ -255,14 +262,14 @@ if __name__ == "__main__":
             observe, reward, done, info = env.step(action)
             # reward = reward * 10
             # State preprocessing for each time step
-            next_state = pre_processing(observe)
-            next_state = next_state.reshape(1, 84, 84, 1)
-            next_history = next_state.reshape(1, 1, 84, 84, 1)
-            next_history = np.append(next_history, history[:, :9, :, :, :],
+            next_state = observe
+            next_state = next_state.reshape(1, 100, 6, )
+            next_history = next_state.reshape(1, 1, 100, 6)
+            next_history = np.append(next_history, history[:, :9, :, :],
                                      axis=1)
-            next_history = np.reshape([next_history], (1, 10, 84, 84, 1))
+            next_history = np.reshape([next_history], (1, 10, 100, 6))
             agent.avg_q_max += np.amax(
-                agent.model.predict(np.float32(history / 255.))[0])
+                agent.model.predict(np.float32(history))[0])
             if start_life > info:
                 dead = True
                 start_life = info
@@ -302,21 +309,19 @@ if __name__ == "__main__":
                       agent.avg_loss / float(step))
                 agent.avg_q_max, agent.avg_loss = 0, 0
 
-        # Save Model Every 100 Episodes
+        # Save Model Every 50 Episodes
         if e % 100 == 0:
-            agent.model.save_weights("save_model/asteroids_drqn15.h5")
-            agent.target_model.save_weights("save_model/asteroids_drqn15_target.h5")
+            agent.model.save_weights("save_model_vect/asteroids_drqn15.h5")
+            agent.target_model.save_weights(
+                "save_model_vect/asteroids_drqn15_target.h5")
 
-            # pickle_out = open("save_model/memory.pickle", "wb")
-            # pickle.dump(agent.memory, pickle_out)
-            # pickle_out.close()
-
+            # pickle_out = open("save_model_vect/memory_temp.pickle", "wb")
             try:
-                joblib.dump(agent.memory, "save_model/memory_temp.lz4",
+                joblib.dump(agent.memory, "save_model_vect/memory_temp.lz4",
                             compress='lz4')
             except MemoryError:
                 try:
-                    joblib.dump(agent.memory, "save_model/memory_temp.lz4",
+                    joblib.dump(agent.memory, "save_model_vect/memory_temp.lz4",
                                 compress='lz4')
                 except MemoryError:
                     # pickle_out.close()
@@ -324,9 +329,9 @@ if __name__ == "__main__":
                     raise MemoryError("Erreur de mémoire")
             print("saved at ", datetime.now())
             # pickle_out.close()
-            if os.path.exists("save_model/memory.lz4"):
-                os.remove("save_model/memory.lz4")
-            os.rename("save_model/memory_temp.lz4",
-                      "save_model/memory.lz4")
+            if os.path.exists("save_model_vect/memory.lz4"):
+                os.remove("save_model_vect/memory.lz4")
+            os.rename("save_model_vect/memory_temp.lz4",
+                      "save_model_vect/memory.lz4")
 
             save_training_param(agent, e, global_step)
