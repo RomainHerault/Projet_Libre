@@ -91,13 +91,11 @@ class DRQNAgent:
 
             load_training_param(self)
 
-
     def append_sample(self, history, action, reward, next_history, dead):
         """
         Store samples <s, a, r, s'> in replay memory
         """
         self.memory.append((history, action, reward, next_history, dead))
-
 
     def optimizer(self):
         """
@@ -116,7 +114,6 @@ class DRQNAgent:
         updates = optimizer.get_updates(self.model.trainable_weights, [], loss)
         train = K.function([self.model.input, a, y], [loss], updates=updates)
         return train
-
 
     def build_model(self):
         """
@@ -139,7 +136,6 @@ class DRQNAgent:
         model.summary()
         return model
 
-
     def update_target_model(self):
         """
         Update the target model with the weight of the model
@@ -157,7 +153,6 @@ class DRQNAgent:
         else:
             q_value = self.model.predict(history)
             return np.argmax(q_value[0])
-
 
     def train_model(self):
         """
@@ -229,6 +224,7 @@ def save_training_param(agent, e, global_step):
     pickle.dump([e, global_step, agent.epsilon, agent.avg_q_max, agent.avg_loss], pickle_out)
     pickle_out.close()
 
+
 def load_training_param(agent):
     """
     Loads all training parameters to restart training.
@@ -254,7 +250,7 @@ if __name__ == "__main__":
     env = Environement()
     agent = DRQNAgent(action_size=12)
     scores, episodes, global_step = [], [], agent.prev_global_step
-    for e in range(agent.prev_EPISODES,EPISODES):
+    for e in range(agent.prev_EPISODES, EPISODES):
         done = False
         dead = False
         step, score, start_life = 0, 0, 5

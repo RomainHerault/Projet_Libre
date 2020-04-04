@@ -52,7 +52,8 @@ class Asteroids():
 
     def __init__(self):
         self.stage = Stage('Atari Asteroids',
-                           (int(1024 / 1.5), int(768 / 1.5)))  # (1024, 768)
+                           (int(1024 / 1.5), int(768 / 1.5)))
+        # (1024, 768) divided by 1.5 to downscale resolution for the training
         self.paused = False
         self.showingFPS = False
         self.frameAdvance = False
@@ -288,7 +289,7 @@ class Asteroids():
             for i in range(len(self.rockList)):
                 if i < asteroids_number:
                     rock = self.rockList[i]
-                    rock_data = [rock.position.x/683, rock.position.y/512,
+                    rock_data = [rock.position.x / 683, rock.position.y / 512,
                                  max(rock.boundingRect.top, 0) / 512,
                                  max(rock.boundingRect.bottom, 0) / 512,
                                  max(rock.boundingRect.left, 0) / 683,
